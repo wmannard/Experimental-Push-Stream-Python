@@ -17,8 +17,10 @@ from coveopush import CoveoConstants
 ```
 
 ## Installation
+Make sure you have [git](https://git-scm.com/download/win) installed.
 ```
-pip install coveopush
+python -m pip install --upgrade pip
+pip install git+https://github.com/coveo-labs/SDK-Push-Python
 ```
 
 ## Pushing documents
