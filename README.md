@@ -5,6 +5,8 @@ This SDK will help you to utilize the [Coveo Push API](https://docs.coveo.com/en
 The SDK makes it easier to communicate with the Coveo Push API. Documents are validated before being pushed. Updating documents will automatically call the update source status before and after uploading them. If files are to large, automatically an S3 large file container will be used.
 All to make the life of the developer easier in adopting the Push API.
 
+See the ```examples``` on how to use the SDK.
+
 ## How it works
 Simply import the fowlling into your project:
 ```python
