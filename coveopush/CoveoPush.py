@@ -4,7 +4,7 @@
 # Contains the CoveoPush class
 #   Can push documents, update securities
 # -------------------------------------------------------------------------------------
-from . import CoveoConstants
+from .CoveoConstants import Constants
 from .CoveoDocument import Validate
 from .CoveoDocument import Document
 from .CoveoDocument import DocumentToDelete
@@ -41,6 +41,23 @@ def isBase64(s):
         return False
 
 
+class LargeFileContainer:
+    # [JD] Moved from CoveoConstants.py
+    """Class to store the properties returned by LargeFile Container call """
+    # The secure URI used to upload the item data into an Amazon S3 file.
+    UploadUri = ''
+
+    # The file identifier used to link the uploaded data to the pushed item.
+    # This value needs to be set in the item 'CompressedBinaryDataFileId' metadata.
+    FileId = ''
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Default constructor used by the deserialization.
+    def __init__(self, p_JSON):
+        self.UploadUri = p_JSON['uploadUri']
+        self.FileId = p_JSON['fileId']
+
+
 class Push:
     """
     class Push.
@@ -58,7 +75,8 @@ class Push:
         mydoc.AddMetadata("connectortype", "CSV")
         mydoc.Title = "THIS IS A TEST"
         user_email = "wim@coveo.com"
-        myperm = CoveoPermissions.PermissionIdentity( CoveoConstants.Constants.PermissionIdentityType.User, "", user_email )
+        myperm = CoveoPermissions.PermissionIdentity(
+            Constants.PermissionIdentityType.User, "", user_email )
         allowAnonymous = True
         mydoc.SetAllowedAndDeniedPermissions([myperm], [], allowAnonymous)
         push.AddSingleDocument(mydoc)
@@ -97,7 +115,7 @@ class Push:
     OrganizationId = ''
     ApiKey = ''
     Version = 'v1'
-    Endpoint = CoveoConstants.Constants.Endpoint
+    PushApiEndpoint = Constants.PushApiEndpoint
     ProcessingDelayInMinutes = 0
     StartOrderingId = 0
     totalSize = 0
@@ -108,20 +126,19 @@ class Push:
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Default constructor used by the deserialization.
-    def __init__(self, p_SourceId: str, p_OrganizationId: str, p_ApiKey: str, p_Endpoint: CoveoConstants.Constants.Endpoint = CoveoConstants.Constants.Endpoint.PROD_PUSH_API_URL, p_Version=CoveoConstants.Constants.PushVersion.VERSION):
+    def __init__(self, p_SourceId: str, p_OrganizationId: str, p_ApiKey: str, p_Endpoint: Constants.PushApiEndpoint = Constants.PushApiEndpoint.PROD_PUSH_API_URL):
         """
         Push Constructor.
         :arg p_SourceId: Source Id to use
         :arg p_OrganizationId: Organization Id to use
         :arg p_ApiKey: API Key to use
-        :arg p_Endpoint: CoveoConstants.Constants.Endpoint
+        :arg p_Endpoint: Constants.PushApiEndpoint
         :arg p_Version: V1, version of the Push API
         """
         self.SourceId = p_SourceId
         self.OrganizationId = p_OrganizationId
         self.ApiKey = p_ApiKey
         self.Endpoint = p_Endpoint
-        self.Version = p_Version
         self.logger = logging.getLogger('CoveoPush')
         self.SetupLogging()
 
@@ -132,7 +149,7 @@ class Push:
         By default MAXIMUM_REQUEST_SIZE_IN_BYTES is used (256 Mb)
         :arg p_Max: Max request size in bytes
         """
-        if p_Max > CoveoConstants.Constants.MAXIMUM_REQUEST_SIZE_IN_BYTES:
+        if p_Max > Constants.MAXIMUM_REQUEST_SIZE_IN_BYTES:
             Error(self, "SetSizeMaxRequest: to big")
 
         self.MaxRequestSize = p_Max
@@ -141,8 +158,8 @@ class Push:
     def GetSizeMaxRequest(self):
         if self.MaxRequestSize > 0:
             return self.MaxRequestSize
-        else:
-            return CoveoConstants.Constants.MAXIMUM_REQUEST_SIZE_IN_BYTES
+
+        return Constants.MAXIMUM_REQUEST_SIZE_IN_BYTES
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def SetupLogging(self, p_LEVEL=logging.DEBUG, p_OutputFile='CoveoPush.log', p_Format="'%(asctime)s %(levelname)s %(message)s'"):
@@ -163,13 +180,29 @@ class Push:
         Gets the Request headers needed for every Push call.
         """
 
-        self.logger.debug('GetRequestHeaders ')
+        self.logger.debug('GetRequestHeaders')
         return {
             'Authorization': 'Bearer ' + self.ApiKey,
             'content-type': 'application/json'
         }
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def GetRequestHeadersForS3(self):
+        """
+        GetRequestHeadersForS3.
+        Gets the Request headers needed for calls to Amazon S3.
+        """
+
+        self.logger.debug('GetRequestHeadersForS3')
+        return {
+            'Content-Type': 'application/octet-stream',
+            Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_NAME: Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_VALUE
+        }
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # [JD]  Obsolete. Could be replace by self.GetStatusUrl(Constants.PushApiPaths.SOURCE_ACTIVITY_STATUS)
+
     def GetStatusUrl(self):
         """
         GetStatusUrl.
@@ -177,8 +210,8 @@ class Push:
         """
 
         self.logger.debug('GetStatusUrl')
-        return (self.Endpoint+"/"+CoveoConstants.Constants.PushApiPaths.SOURCE_ACTIVITY_STATUS).format(
-            version=self.Version,
+        return Constants.PushApiPaths.SOURCE_ACTIVITY_STATUS.format(
+            endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
@@ -194,6 +227,7 @@ class Push:
         return int(round(time.time() * 1000))
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.DOCUMENT_GET_CONTAINER)
     def GetLargeFileContainerUrl(self):
         """
         GetLargeFileContainerUrl.
@@ -201,12 +235,13 @@ class Push:
         """
 
         self.logger.debug('GetLargeFileContainerUrl')
-        return (self.Endpoint+"/"+CoveoConstants.Constants.PushApiPaths.DOCUMENT_GET_CONTAINER).format(
-            version=self.Version,
+        return Constants.PushApiPaths.DOCUMENT_GET_CONTAINER.format(
+            endpoint=self.Endpoint,
             org_id=self.OrganizationId
         )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS)
     def GetUpdateDocumentUrl(self):
         """
         GetUpdateDocumentUrl.
@@ -214,8 +249,8 @@ class Push:
         """
 
         self.logger.debug('GetUpdateDocumentUrl')
-        return (self.Endpoint+"/"+CoveoConstants.Constants.PushApiPaths.SOURCE_DOCUMENTS).format(
-            version=self.Version,
+        return Constants.PushApiPaths.SOURCE_DOCUMENTS.format(
+            endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
@@ -228,12 +263,14 @@ class Push:
         """
 
         self.logger.debug('GetSecurityProviderUrl')
-        return (p_Endpoint+"/"+CoveoConstants.Constants.PushApiPaths.CREATE_PROVIDER).format(
+        return Constants.PlatformPaths.CREATE_PROVIDER.format(
+            endpoint=p_Endpoint,
             org_id=self.OrganizationId,
-            name_id=p_SecurityProviderId
+            prov_id=p_SecurityProviderId
         )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH)
     def GetDeleteDocumentUrl(self):
         """
         GetDeleteDocumentUrl.
@@ -241,13 +278,14 @@ class Push:
         """
 
         self.logger.debug('GetDeleteDocumentUrl')
-        return (self.Endpoint+"/"+CoveoConstants.Constants.PushApiPaths.SOURCE_DOCUMENTS).format(
-            version=self.Version,
+        return Constants.PushApiPaths.SOURCE_DOCUMENTS.format(
+            endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH)
     def GetUpdateDocumentsUrl(self):
         """
         GetUpdateDocumentsUrl.
@@ -255,13 +293,14 @@ class Push:
         """
 
         self.logger.debug('GetUpdateDocumentsUrl')
-        return (self.Endpoint+"/"+CoveoConstants.Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH).format(
-            version=self.Version,
+        return Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH.format(
+            endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_DELETE)
     def GetDeleteOlderThanUrl(self):
         """
         GetDeleteOlderThanUrl.
@@ -269,10 +308,22 @@ class Push:
         """
 
         self.logger.debug('GetDeleteOlderThanUrl')
-        return (self.Endpoint+"/"+CoveoConstants.Constants.PushApiPaths.SOURCE_DOCUMENTS_DELETE).format(
-            version=self.Version,
+        return Constants.PushApiPaths.SOURCE_DOCUMENTS_DELETE.format(
+            endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
+        )
+
+    def GetUrl(self, path, prov_id: str = ''):
+        """
+        Return path with values (endpoint, org, source, provider) set accordingly.
+        """
+        self.logger.debug('GetUrl')
+        return path.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            src_id=self.SourceId,
+            prov_id=prov_id
         )
 
     def CheckReturnCode(self, p_Response):
@@ -286,21 +337,24 @@ class Push:
         return p_Response.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def UpdateSourceStatus(self, p_SourceStatus: CoveoConstants.Constants.SourceStatusType):
+    def UpdateSourceStatus(self, p_SourceStatus: Constants.SourceStatusType):
         """
         UpdateSourceStatus.
         Update the Source status, so that the activity on the source reflects what is going on
-        :arg p_SourceStatus: CoveoConstants.Constants.SourceStatusType (REBUILD, IDLE)
+        :arg p_SourceStatus: Constants.SourceStatusType (REBUILD, IDLE)
         """
 
         self.logger.debug('UpdateSourceStatus')
         params = {
-            CoveoConstants.Constants.Parameters.STATUS_TYPE: p_SourceStatus.value
+            Constants.Parameters.STATUS_TYPE: p_SourceStatus.value
         }
 
         # make POST request to change status
-        r = requests.post(self.GetStatusUrl(),
-                          headers=self.GetRequestHeaders(), params=params)
+        r = requests.post(
+            self.GetStatusUrl(),
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
         return self.CheckReturnCode(r)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -312,11 +366,13 @@ class Push:
         """
 
         self.logger.debug('GetLargeFileContainer')
-        r = requests.post(self.GetLargeFileContainerUrl(),
-                          headers=self.GetRequestHeaders())
+        r = requests.post(
+            self.GetLargeFileContainerUrl(),
+            headers=self.GetRequestHeaders()
+        )
         self.CheckReturnCode(r)
 
-        results = CoveoConstants.LargeFileContainer(json.loads(r.text))
+        results = LargeFileContainer(json.loads(r.text))
         return results
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -339,8 +395,11 @@ class Push:
         if (isBase64(p_CompressedFile)):
             p_CompressedFile = base64.b64decode(p_CompressedFile)
 
-        r = requests.put(p_UploadUri, data=p_CompressedFile, headers={
-                         'Content-Type': 'application/octet-stream', CoveoConstants.Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_NAME: CoveoConstants.Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_VALUE})
+        r = requests.put(
+            p_UploadUri,
+            data=p_CompressedFile,
+            headers=self.GetRequestHeadersForS3()
+        )
         self.CheckReturnCode(r)
         self.logger.debug('UploadDocument, result: '+str(r.status_code))
 
@@ -365,8 +424,11 @@ class Push:
         data.AddOrUpdate = p_ToAdd
         data.Delete = p_ToDelete
 
-        r = requests.put(p_UploadUri, data=jsonpickle.encode(data, unpicklable=False), headers={
-                         'Content-Type': 'application/octet-stream', CoveoConstants.Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_NAME: CoveoConstants.Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_VALUE})
+        r = requests.put(
+            p_UploadUri,
+            data=jsonpickle.encode(data, unpicklable=False),
+            headers=self.GetRequestHeadersForS3()
+        )
         self.CheckReturnCode(r)
         self.logger.debug('UploadDocuments, result: '+str(r.status_code))
 
@@ -386,8 +448,12 @@ class Push:
         self.logger.debug(
             "JSON: "+jsonpickle.encode(self.BatchPermissions, unpicklable=False))
 
-        r = requests.put(p_UploadUri, data=jsonpickle.encode(self.BatchPermissions, unpicklable=False), headers={
-                         'Content-Type': 'application/octet-stream', CoveoConstants.Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_NAME: CoveoConstants.Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_VALUE})
+        r = requests.put(
+            p_UploadUri,
+            data=jsonpickle.encode(self.BatchPermissions, unpicklable=False),
+            headers=self.GetRequestHeadersForS3()
+        )
+
         self.CheckReturnCode(r)
         self.logger.debug('UploadPermissions, result: '+str(r.status_code))
 
@@ -420,12 +486,13 @@ class Push:
 
         self.logger.debug('UploadDocumentIfTooLarge')
         size = len(p_Document.Data)+len(p_Document.CompressedBinaryData)
-        if (size > CoveoConstants.Constants.COMPRESSED_DATA_MAX_SIZE_IN_BYTES):
+        if (size > Constants.COMPRESSED_DATA_MAX_SIZE_IN_BYTES):
             data = ''
             if p_Document.Data:
                 data = p_Document.Data
             else:
                 data = p_Document.CompressedBinaryData
+
             fileId = self.GetContainerAndUploadDocument(data)
             p_Document.SetCompressedDataFileId(fileId)
 
@@ -440,42 +507,50 @@ class Push:
 
         self.logger.debug('AddUpdateDocumentRequest')
         params = {
-            CoveoConstants.Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId,
-            CoveoConstants.Constants.Parameters.ORDERING_ID: p_OrderingId
+            Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId,
+            Constants.Parameters.ORDERING_ID: p_OrderingId
         }
 
         # Set the compression type parameter
         if (p_CoveoDocument.CompressedBinaryData != '' or p_CoveoDocument.CompressedBinaryDataFileId != ''):
-            params[CoveoConstants.Constants.Parameters.COMPRESSION_TYPE] = p_CoveoDocument.CompressionType
-        #body = json.dumps(p_CoveoDocument, default=lambda x: x.__dict__)
+            params[Constants.Parameters.COMPRESSION_TYPE] = p_CoveoDocument.CompressionType
+
         body = jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)
         self.logger.debug('AddUpdateDocumentRequest, body: '+body)
+
         # make POST request to change status
-        r = requests.put(self.GetUpdateDocumentUrl(), data=body,
-                         headers=self.GetRequestHeaders(), params=params)
+        r = requests.put(
+            self.GetUpdateDocumentUrl(),
+            data=body,
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
         self.CheckReturnCode(r)
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddDeleteDocumentRequest(self, p_DocumentId: str, p_OrderingId: int, p_DeleteChildren: bool):
+    # [JD] This function doesn't add a request to a delete array, it does the call to delete. I am renaming to DeleteDocument...
+    def DeleteDocument(self, p_DocumentId: str, p_OrderingId: int, p_DeleteChildren: bool):
         """
-        AddDeleteDocumentRequest.
         Deletes the document
         :arg p_DocumentId: CoveoDocument
         :arg p_OrderingId: int
         :arg p_DeleteChildren: bool, if children must be deleted
         """
 
-        self.logger.debug('AddDeleteDocumentRequest')
+        self.logger.debug('DeleteDocument')
         params = {
-            CoveoConstants.Constants.Parameters.DOCUMENT_ID: p_DocumentId,
-            CoveoConstants.Constants.Parameters.ORDERING_ID: p_OrderingId,
-            CoveoConstants.Constants.Parameters.DELETE_CHILDREN: p_DeleteChildren
+            Constants.Parameters.DOCUMENT_ID: p_DocumentId,
+            Constants.Parameters.ORDERING_ID: p_OrderingId,
+            Constants.Parameters.DELETE_CHILDREN: p_DeleteChildren
         }
 
         # delete it
-        r = requests.delete(self.GetDeleteDocumentUrl(),
-                            headers=self.GetRequestHeaders(), params=params)
+        r = requests.delete(
+            self.GetDeleteDocumentUrl(),
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
         self.CheckReturnCode(r)
         return r.status_code
 
@@ -497,11 +572,14 @@ class Push:
                 self, "DeleteOlderThan: ProcessingDelayInMinutes must be between 0 and 1440.")
 
         params = {
-            CoveoConstants.Constants.Parameters.ORDERING_ID: p_OrderingId,
-            CoveoConstants.Constants.Parameters.QUEUE_DELAY: self.ProcessingDelayInMinutes
+            Constants.Parameters.ORDERING_ID: p_OrderingId,
+            Constants.Parameters.QUEUE_DELAY: self.ProcessingDelayInMinutes
         }
-        r = requests.delete(self.GetDeleteOlderThanUrl(),
-                            headers=self.GetRequestHeaders(), params=params)
+        r = requests.delete(
+            self.GetDeleteOlderThanUrl(),
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
         self.CheckReturnCode(r)
         return r.status_code
 
@@ -528,7 +606,7 @@ class Push:
         # Update Source Status
         if p_UpdateStatus:
             self.UpdateSourceStatus(
-                CoveoConstants.Constants.SourceStatusType.Rebuild)
+                Constants.SourceStatusType.Rebuild)
 
         # Push Document
         try:
@@ -541,7 +619,7 @@ class Push:
         # Update Source Status
         if p_UpdateStatus:
             self.UpdateSourceStatus(
-                CoveoConstants.Constants.SourceStatusType.Idle)
+                Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def RemoveSingleDocument(self, p_DocumentId: str, p_UpdateStatus: bool = True, p_OrderingId: int = 0, p_DeleteChildren: bool = False):
@@ -562,17 +640,14 @@ class Push:
 
         # Update Source Status
         if p_UpdateStatus:
-            self.UpdateSourceStatus(
-                CoveoConstants.Constants.SourceStatusType.Rebuild)
+            self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
 
-        # Push Document to delete
-        self.AddDeleteDocumentRequest(
-            p_DocumentId, p_OrderingId, p_DeleteChildren)
+        # Delete document
+        self.DeleteDocument(p_DocumentId, p_OrderingId, p_DeleteChildren)
 
         # Update Source Status
         if p_UpdateStatus:
-            self.UpdateSourceStatus(
-                CoveoConstants.Constants.SourceStatusType.Idle)
+            self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddUpdateDocumentsRequest(self, p_FileId: str):
@@ -584,11 +659,14 @@ class Push:
 
         self.logger.debug('AddUpdateDocumentsRequest')
         params = {
-            CoveoConstants.Constants.Parameters.FILE_ID: p_FileId
+            Constants.Parameters.FILE_ID: p_FileId
         }
         # make POST request to change status
-        r = requests.put(self.GetUpdateDocumentsUrl(),
-                         headers=self.GetRequestHeaders(), params=params)
+        r = requests.put(
+            self.GetUpdateDocumentsUrl(),
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
         self.CheckReturnCode(r)
         return r.status_code
 
@@ -627,9 +705,10 @@ class Push:
         totalSize = 0
         for document in p_Documents:
             # Add 1 byte to account for the comma in the JSON array.
-            #documentSize = len(json.dumps(document,default=lambda x: x.__dict__)) + 1
+            # documentSize = len(json.dumps(document,default=lambda x: x.__dict__)) + 1
             documentSize = len(jsonpickle.encode(
                 document.ToJson(), unpicklable=False)) + 1
+
             totalSize += documentSize
             self.logger.debug("Doc: "+document.DocumentId)
             self.logger.debug("Currentsize: "+str(totalSize) +
@@ -652,7 +731,7 @@ class Push:
                 valid, error = Validate(document)
                 if not valid:
                     Error(self, "PushDocument: " +
-                          document.DocumentId+", "+error)
+                          document.DocumentId + ", " + error)
                 else:
                     currentBatchToAddUpdate.append(document.ToJson())
 
@@ -680,12 +759,12 @@ class Push:
 
         # Update Source Status
         if p_UpdateStatus:
-            self.UpdateSourceStatus(
-                CoveoConstants.Constants.SourceStatusType.Rebuild)
+            self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
 
         # Push the Documents
         if p_CoveoDocumentsToAdd:
             allDocuments = p_CoveoDocumentsToAdd
+
         if p_CoveoDocumentsToDelete:
             allDocuments = allDocuments.extend(p_CoveoDocumentsToDelete)
 
@@ -697,8 +776,7 @@ class Push:
 
         # Update Source Status
         if p_UpdateStatus:
-            self.UpdateSourceStatus(
-                CoveoConstants.Constants.SourceStatusType.Idle)
+            self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def Start(self, p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
@@ -716,8 +794,7 @@ class Push:
 
         # Update Source Status
         if p_UpdateStatus:
-            self.UpdateSourceStatus(
-                CoveoConstants.Constants.SourceStatusType.Rebuild)
+            self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def Add(self, p_CoveoDocument):
@@ -781,17 +858,17 @@ class Push:
         # Update Source Status
         if p_UpdateStatus:
             self.UpdateSourceStatus(
-                CoveoConstants.Constants.SourceStatusType.Idle)
+                Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddSecurityProvider(self, p_SecurityProviderId: str, p_Type: str, p_CascadingTo: {}, p_Endpoint: CoveoConstants.Constants.PlatformEndpoint = CoveoConstants.Constants.PlatformEndpoint.PROD_PLATFORM_API_URL):
+    def AddSecurityProvider(self, p_SecurityProviderId: str, p_Type: str, p_CascadingTo: {}, p_Endpoint: Constants.PlatformEndpoint = Constants.PlatformEndpoint.PROD_PLATFORM_API_URL):
         """
         AddSecurityProvider.
         Add a single Permission Expansion (PermissionIdentityBody)
         :arg p_SecurityProviderId: Security Provider name and Id to use
         :arg p_Type: Type of provider, normally 'EXPANDED'
         :arg p_CascadingTo: dictionary
-        :arg p_Endpoint: CoveoConstants.Constants.PlatformEndpoint
+        :arg p_Endpoint: Constants.PlatformEndpoint
         """
         secProvider = SecurityProvider()
         secProviderReference = SecurityProviderReference(
@@ -807,8 +884,11 @@ class Push:
         # make POST request to change status
         self.logger.debug(
             "JSON: "+jsonpickle.encode(secProvider, unpicklable=False))
-        r = requests.put(self.GetSecurityProviderUrl(p_Endpoint, p_SecurityProviderId), data=jsonpickle.encode(
-            secProvider, unpicklable=False), headers=self.GetRequestHeaders())
+        r = requests.put(
+            self.GetSecurityProviderUrl(p_Endpoint, p_SecurityProviderId),
+            data=jsonpickle.encode(secProvider, unpicklable=False),
+            headers=self.GetRequestHeaders()
+        )
         self.CheckReturnCode(r)
         return r.status_code
 
@@ -835,20 +915,28 @@ class Push:
         permissionIdentityBody.AddWellKnowns(p_WellKnowns)
 
         params = {
-            CoveoConstants.Constants.Parameters.ORDERING_ID: p_OrderingId
+            Constants.Parameters.ORDERING_ID: p_OrderingId
         }
 
-        resourcePathFormat = CoveoConstants.Constants.PushApiPaths.PROVIDER_PERMISSIONS
+        resourcePathFormat = Constants.PushApiPaths.PROVIDER_PERMISSIONS
         if p_Mappings:
-            resourcePathFormat = CoveoConstants.Constants.PushApiPaths.PROVIDER_MAPPINGS
-        resourcePath = (self.Endpoint+"/"+resourcePathFormat).format(
-            version=self.Version, org_id=self.OrganizationId, prov_id=p_SecurityProviderId)
+            resourcePathFormat = Constants.PushApiPaths.PROVIDER_MAPPINGS
+
+        resourcePath = resourcePathFormat.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            prov_id=p_SecurityProviderId
+        )
 
         self.logger.debug(
             "JSON: "+jsonpickle.encode(permissionIdentityBody, unpicklable=False))
         # Update permission
-        r = requests.put(resourcePath, data=jsonpickle.encode(
-            permissionIdentityBody, unpicklable=False), headers=self.GetRequestHeaders(), params=params)
+        r = requests.put(
+            resourcePath,
+            data=jsonpickle.encode(permissionIdentityBody, unpicklable=False),
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
         self.CheckReturnCode(r)
         return r.status_code
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -937,16 +1025,22 @@ class Push:
 
         self.UploadPermissions(container.UploadUri)
         params = {
-            CoveoConstants.Constants.Parameters.FILE_ID: container.FileId
+            Constants.Parameters.FILE_ID: container.FileId
         }
 
-        resourcePathFormat = CoveoConstants.Constants.PushApiPaths.PROVIDER_PERMISSIONS_BATCH
-        resourcePath = (self.Endpoint+"/"+resourcePathFormat).format(
-            version=self.Version, org_id=self.OrganizationId, prov_id=p_SecurityProviderId)
+        resourcePathFormat = Constants.PushApiPaths.PROVIDER_PERMISSIONS_BATCH
+        resourcePath = resourcePathFormat.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            prov_id=p_SecurityProviderId
+        )
 
         # Update permission
         r = requests.put(
-            resourcePath, headers=self.GetRequestHeaders(), params=params)
+            resourcePath,
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
         self.CheckReturnCode(r)
 
         if p_DeleteOlder:
@@ -963,15 +1057,21 @@ class Push:
         """
         self.logger.debug('RemovePermissionIdentity')
         permissionIdentityBody = PermissionIdentityBody(p_PermissionIdentity)
-        resourcePathFormat = CoveoConstants.Constants.PushApiPaths.PROVIDER_PERMISSIONS
-        resourcePath = (self.Endpoint+"/"+resourcePathFormat).format(
-            version=self.Version, org_id=self.OrganizationId, prov_id=p_SecurityProviderId)
+        resourcePathFormat = Constants.PushApiPaths.PROVIDER_PERMISSIONS
+        resourcePath = resourcePathFormat.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            prov_id=p_SecurityProviderId
+        )
 
         # Update permission
         self.logger.debug(
             "JSON: "+jsonpickle.encode(permissionIdentityBody, unpicklable=False))
-        r = requests.delete(resourcePath, data=jsonpickle.encode(
-            permissionIdentityBody, unpicklable=False), headers=self.GetRequestHeaders())
+        r = requests.delete(
+            resourcePath,
+            data=jsonpickle.encode(permissionIdentityBody, unpicklable=False),
+            headers=self.GetRequestHeaders()
+        )
         self.CheckReturnCode(r)
         return r.status_code
 
@@ -989,15 +1089,21 @@ class Push:
             p_OrderingId = self.CreateOrderingId()
 
         params = {
-            CoveoConstants.Constants.Parameters.ORDERING_ID: p_OrderingId
+            Constants.Parameters.ORDERING_ID: p_OrderingId
         }
 
-        resourcePathFormat = CoveoConstants.Constants.PushApiPaths.PROVIDER_PERMISSIONS_DELETE
-        resourcePath = (self.Endpoint+"/"+resourcePathFormat).format(
-            version=self.Version, org_id=self.OrganizationId, prov_id=p_SecurityProviderId)
+        resourcePathFormat = Constants.PushApiPaths.PROVIDER_PERMISSIONS_DELETE
+        resourcePath = resourcePathFormat.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            prov_id=p_SecurityProviderId
+        )
 
         # Update permission
         r = requests.delete(
-            resourcePath, headers=self.GetRequestHeaders(), params=params)
+            resourcePath,
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
         self.CheckReturnCode(r)
         return r.status_code

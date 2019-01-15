@@ -58,3 +58,9 @@ For example:
     self.AddMappings( [p_PermissionIdentityBody] )
 ```
 
+## CoveoPush
+
+Do we really need all these functions: `GetDeleteDocumentUrl`, `GetDeleteOlderThanUrl`, `GetLargeFileContainerUrl`, `GetStatusUrl`, `GetUpdateDocumentUrl`, `GetUpdateDocumentsUrl`?
+
+I feel that only a `GetUrl(path)` would be enough.
+
