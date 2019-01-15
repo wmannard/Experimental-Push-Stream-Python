@@ -41,6 +41,7 @@ For example:
 
 We can reduce the number of functions we support.
 It's logical to only use arrays to add members, mappings, etc...
+
 We could remove these functions:
 * DocumentPermissionSet::AddAllowedPermission
 * DocumentPermissionSet::AddDeniedPermission
@@ -57,6 +58,8 @@ For example:
   def AddMapping( self, p_PermissionIdentityBody: PermissionIdentityBody ):
     self.AddMappings( [p_PermissionIdentityBody] )
 ```
+
+I updated the class `PermissionIdentityBody` to illustrate what I meant.
 
 ## CoveoPush
 
