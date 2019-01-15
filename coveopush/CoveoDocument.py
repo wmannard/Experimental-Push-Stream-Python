@@ -118,6 +118,7 @@ class Document:
     DocumentId = ''
     Title = ''
     ModifiedDate = ''
+    # [JD] IndexedDate shouldn't be set here, it should be set by the platform, right?
     IndexedDate = ''
     CompressedBinaryData = ''
     CompressedBinaryDataFileId = ''
