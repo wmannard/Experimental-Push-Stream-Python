@@ -56,9 +56,8 @@ class PermissionIdentity:
                 "PermissionIdentity: p_AdditionalInfo is not a dictionary")
         self.AdditionalInfo = p_AdditionalInfo
 
+
 # ---------------------------------------------------------------------------------
-
-
 class PermissionIdentityExpansion:
     """
     class PermissionIdentityExpansion.
@@ -99,9 +98,9 @@ class PermissionIdentityExpansion:
             raise Exception(
                 "PermissionIdentityExpansion: p_AdditionalInfo is not a dictionary")
         self.additionalInfo = p_AdditionalInfo
+
+
 # ---------------------------------------------------------------------------------
-
-
 class DocumentPermissionSet:
     """
     class DocumentPermissionSet.
@@ -268,102 +267,49 @@ class PermissionIdentityBody:
         self.members = []
         self.wellKnowns = []
 
+    def __add(self, attr: str, p_PermissionIdentities: []):
+        """
+        Add.
+        Add a PermissionIdentity to the self[attr]
+        :arg attr: name of array to add the identities to (mappings, members, wellKnowns).
+        :arg p_PermissionIdentity: PermissionIdentityExpansion.
+        """
+        # Check if correct
+        if not p_PermissionIdentities:
+            return
+        if not isinstance(p_PermissionIdentities, (list,)):
+            Error(self, "Adding to " + attr + ": value is not a list")
+
+        if not (type(p_PermissionIdentities[0]) is PermissionIdentityExpansion):
+            Error(self, "Adding to " + attr +
+                  ": value is not of type PermissionIdentityExpansion")
+
+        self.__dict__[attr].extend(p_PermissionIdentities)
+
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # [JD] I feel we don't need these singular function.
+    # [JD] We can get away with the plural (array) ones and accept single value in them if we want to be nice.
     def AddMember(self, p_PermissionIdentity: PermissionIdentityExpansion):
-        """
-        AddMember.
-        Add a PermissionIdentity to the Members.
-        :arg p_PermissionIdentity: PermissionIdentityExpansion.
-        """
-        # Check if correct
-        if not (type(p_PermissionIdentity) is PermissionIdentityExpansion):
-            Error(self, "AddMember: value is not of type PermissionIdentityExpansion")
+        self.__add('members', [p_PermissionIdentity])
 
-        self.members.append(p_PermissionIdentity)
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMapping(self, p_PermissionIdentity: PermissionIdentityExpansion):
-        """
-        AddMapping.
-        Add a PermissionIdentity to the Mappings.
-        :arg p_PermissionIdentity: PermissionIdentityExpansion.
-        """
-        # Check if correct
-        if not (type(p_PermissionIdentity) is PermissionIdentityExpansion):
-            Error(self, "AddMapping: value is not of type PermissionIdentityExpansion")
+        self.__add('mappings', [p_PermissionIdentity])
 
-        self.mappings.append(p_PermissionIdentity)
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddWellKnown(self, p_PermissionIdentity: PermissionIdentityExpansion):
-        """
-        AddWellKnown.
-        Add a PermissionIdentity to the WellKnowns.
-        :arg p_PermissionIdentity: PermissionIdentity.
-        """
-        # Check if correct
-        if not (type(p_PermissionIdentity) is PermissionIdentityExpansion):
-            Error(self, "AddWellKnowns: value is not of type PermissionIdentityExpansion")
-
-        self.wellKnowns.append(p_PermissionIdentity)
+        self.__add('wellKnowns', [p_PermissionIdentity])
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMembers(self, p_PermissionIdentities: []):
-        """
-        AddMembers.
-        Add a list of PermissionIdentities to the Members.
-        :arg p_PermissionIdentities: list of PermissionIdentityExpansion.
-        """
-        # Check if correct
-        if not p_PermissionIdentities:
-            return
-        if not isinstance(p_PermissionIdentities, (list,)):
-            Error(self, "AddMembers: value is not a list")
+        self.__add('members', p_PermissionIdentities)
 
-        if not (type(p_PermissionIdentities[0]) is PermissionIdentityExpansion):
-            Error(self, "AddMembers: value is not of type PermissionIdentityExpansion")
-
-        self.members.extend(p_PermissionIdentities)
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMappings(self, p_PermissionIdentities: []):
-        """
-        AddMappings.
-        Add a list of PermissionIdentities to the Mappings.
-        :arg p_PermissionIdentities: list of PermissionIdentityExpansion.
-        """
-        # Check if correct
-        if not p_PermissionIdentities:
-            return
-        if not isinstance(p_PermissionIdentities, (list,)):
-            Error(self, "AddMappings: value is not a list")
+        self.__add('mappings', p_PermissionIdentities)
 
-        if not (type(p_PermissionIdentities[0]) is PermissionIdentityExpansion):
-            Error(self, "AddMappings: value is not of type PermissionIdentityExpansion")
-
-        self.mappings.extend(p_PermissionIdentities)
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddWellKnowns(self, p_PermissionIdentities: []):
-        """
-        AddWellKnowns.
-        Add a list of PermissionIdentities to the WellKnowns.
-        :arg p_PermissionIdentities: list of PermissionIdentityExpansion.
-        """
-        # Check if correct
-        if not p_PermissionIdentities:
-            return
-        if not isinstance(p_PermissionIdentities, (list,)):
-            Error(self, "AddWellKnowns: value is not a list")
+        self.__add('wellKnowns', p_PermissionIdentities)
 
-        if not (type(p_PermissionIdentities[0]) is PermissionIdentityExpansion):
-            Error(self, "AddWellKnowns: value is not of type PermissionIdentityExpansion")
-
-        self.wellKnowns.extend(p_PermissionIdentities)
 
 # ---------------------------------------------------------------------------------
-
-
 class BatchPermissions:
     """
     class BatchPermissions.
