@@ -114,7 +114,6 @@ class Push:
     SourceId = ''
     OrganizationId = ''
     ApiKey = ''
-    Version = 'v1'
     PushApiEndpoint = Constants.PushApiEndpoint
     ProcessingDelayInMinutes = 0
     StartOrderingId = 0
@@ -133,7 +132,6 @@ class Push:
         :arg p_OrganizationId: Organization Id to use
         :arg p_ApiKey: API Key to use
         :arg p_Endpoint: Constants.PushApiEndpoint
-        :arg p_Version: V1, version of the Push API
         """
         self.SourceId = p_SourceId
         self.OrganizationId = p_OrganizationId
