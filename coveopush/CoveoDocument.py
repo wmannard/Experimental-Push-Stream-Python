@@ -40,24 +40,26 @@ def Validate(obj):
     Returns True/False, Error
     """
     result = True
-    error = ''
+    error = []
     if obj.DocumentId == '':
-        error = 'DocumentId is empty |'
+        error.append('DocumentId is empty')
         result = False
     # data or CompressedBinaryData should be set, not both
     if obj.Data and obj.CompressedBinaryData:
-        error += 'Both Data and CompressedBinaryData are set |'
+        error.append('Both Data and CompressedBinaryData are set')
         result = False
     # Validate documentId, should be a valid url
     try:
+        # [JD] -- this will allow 'abc.x' as a DocumentId and that is invalid.
+        # [JD] -- maybe use a RegEx here instead?
         urlparse(obj.DocumentId)
     except:
-        error += 'DocumentId is not a valid URL |'
+        error.append('DocumentId is not a valid URL')
         result = False
     if obj.Title == '':
-        error += 'Title is empty |'
+        error.append('Title is empty')
         result = False
-    return result, error
+    return result, ' | '.join(error)
 
 
 # ---------------------------------------------------------------------------------

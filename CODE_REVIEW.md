@@ -12,6 +12,8 @@ isBase64() is duplicated in CoveoPush. Maybe use a Util class?
 
 in Validate(), rather than building a string for `error`, consider using an array and use `errors.append('some message')` and at the end, `' | '.join(errors)` (it will prevent trailings characters `|`)
 
+in Validate(), a `DocumentId` like `abc.x` will return True, but is an invalid id.
+
 ### SetDate
 
 The validation isn't right. It checks if not an empty string is passed when we expect a datetime object. I proposed we check if the instance is `datetime`, and in case a string is passed in, we try to make it a `datetime`.
