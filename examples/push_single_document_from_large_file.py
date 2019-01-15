@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # Push Single, large document from a filestore
 # Automatically a AWS s3 Upload will be retrieved, the file will be uploaded and be pushed
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 
 import json
 import re
@@ -46,14 +46,15 @@ def main():
     # Set permissions
     user_email = "wim@coveo.com"
     # Create a permission Identity
-    myperm = CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+    myperm = CoveoPermissions.PermissionIdentity(
+        CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
     # Set the permissions on the document
     allowAnonymous = True
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], allowAnonymous)
 
-    #Push the document
+    # Push the document
     push.AddSingleDocument(mydoc)
 
-    
+
 if __name__ == '__main__':
     main()

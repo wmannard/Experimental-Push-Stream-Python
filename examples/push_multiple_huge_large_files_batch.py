@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # Push documents using the Start/End Batch method
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 
 import json
 import re
@@ -20,9 +20,10 @@ from coveopush import Document
 from coveopush import CoveoPermissions
 from coveopush import CoveoConstants
 
+
 def createDoc(myfile, version):
     # Create a document
-    mydoc = Document('file:///' + version + "/" +myfile)
+    mydoc = Document('file:///' + version + "/" + myfile)
     # Get the file and compress it
     mydoc.GetFileAndCompress(myfile)
     # Set Metadata
@@ -35,9 +36,11 @@ def createDoc(myfile, version):
     mydoc.Title = "THIS IS A TEST"
     # Set permissions
     user_email = "wim@coveo.com"
-    myperm = CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+    myperm = CoveoPermissions.PermissionIdentity(
+        CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], True)
     return mydoc
+
 
 def main():
     sourceId = '--Enter your source id--'
@@ -51,7 +54,7 @@ def main():
     # Start the batch
     push.Start(updateSourceStatus, deleteOlder)
 
-    # Set the maximum 
+    # Set the maximum
     push.SetSizeMaxRequest(150*1024*1024)
 
     # Add the documents, if the buffer is full it will be pushed
@@ -69,6 +72,6 @@ def main():
     # End the Push
     push.End(updateSourceStatus, deleteOlder)
 
-    
+
 if __name__ == '__main__':
     main()
