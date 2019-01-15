@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#-------------------------------------------------------------------------------------
-# Delete Single document 
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
+# Delete Single document
+# -------------------------------------------------------------------------------------
 
 import json
 import re
@@ -43,7 +43,8 @@ def main():
     # Set permissions
     user_email = "wim@coveo.com"
     # Create a permission identity
-    myperm = CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+    myperm = CoveoPermissions.PermissionIdentity(
+        CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
     # Set the permissions on the document
     allowAnonymous = True
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], allowAnonymous)
@@ -55,6 +56,7 @@ def main():
 
     # Remove it
     push.RemoveSingleDocument('https://myreference&id=TESTME')
-    
+
+
 if __name__ == '__main__':
     main()

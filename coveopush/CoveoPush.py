@@ -31,8 +31,8 @@ def Error(log, err):
 #---------------------------------------------------------------------------------
 def isBase64(s):
   """
-  isBase64. 
-  Checks if string is base64 encoded. 
+  isBase64.
+  Checks if string is base64 encoded.
   Returns True/False
   """
   try:
@@ -43,7 +43,7 @@ def isBase64(s):
 #---------------------------------------------------------------------------------
 class Push:
   """
-  class Push. 
+  class Push.
   Holds all methods to start pushing data.
 
   3 methods of pushing data:
@@ -110,7 +110,7 @@ class Push:
   #Default constructor used by the deserialization.
   def __init__(self, p_SourceId: str, p_OrganizationId: str, p_ApiKey: str, p_Endpoint : CoveoConstants.Constants.Endpoint = CoveoConstants.Constants.Endpoint.PROD_PUSH_API_URL, p_Version = CoveoConstants.Constants.PushVersion.VERSION ):
     """
-    Push Constructor. 
+    Push Constructor.
     :arg p_SourceId: Source Id to use
     :arg p_OrganizationId: Organization Id to use
     :arg p_ApiKey: API Key to use
@@ -124,12 +124,12 @@ class Push:
     self.Version = p_Version
     self.logger = logging.getLogger('CoveoPush')
     self.SetupLogging()
-    
+
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def SetSizeMaxRequest(self, p_Max : int):
     """
-    SetSizeMaxRequest. 
+    SetSizeMaxRequest.
     By default MAXIMUM_REQUEST_SIZE_IN_BYTES is used (256 Mb)
     :arg p_Max: Max request size in bytes
     """
@@ -137,7 +137,7 @@ class Push:
       Error( self, "SetSizeMaxRequest: to big")
 
     self.MaxRequestSize = p_Max
-    
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetSizeMaxRequest(self):
     if self.MaxRequestSize>0:
@@ -148,7 +148,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def SetupLogging(self, p_LEVEL=logging.DEBUG, p_OutputFile='CoveoPush.log', p_Format="'%(asctime)s %(levelname)s %(message)s'"):
     """
-    SetupLogging. 
+    SetupLogging.
     :arg p_LEVEL: Logging level (logging.DEBUG)
     :arg p_OutputFile: Log file to write (CoveoPush.log)
     :arg p_Format: Format of the log file ('%(asctime)s %(levelname)s %(message)s')
@@ -159,7 +159,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetRequestHeaders(self):
     """
-    GetRequestHeaders. 
+    GetRequestHeaders.
     Gets the Request headers needed for every Push call.
     """
 
@@ -172,7 +172,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetStatusUrl(self):
     """
-    GetStatusUrl. 
+    GetStatusUrl.
     Get the URL to update the Status of the source call
     """
 
@@ -186,7 +186,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def CreateOrderingId(self):
     """
-    CreateOrderingId. 
+    CreateOrderingId.
     Create an Ordering Id, used to set the order of the pushed items
     """
 
@@ -196,7 +196,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetLargeFileContainerUrl(self):
     """
-    GetLargeFileContainerUrl. 
+    GetLargeFileContainerUrl.
     Get the URL for the Large File Container call.
     """
 
@@ -209,7 +209,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetUpdateDocumentUrl(self):
     """
-    GetUpdateDocumentUrl. 
+    GetUpdateDocumentUrl.
     Get the URL for the Update Document call.
     """
 
@@ -223,7 +223,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetSecurityProviderUrl(self, p_Endpoint: str, p_SecurityProviderId: str):
     """
-    GetSecurityProviderUrl. 
+    GetSecurityProviderUrl.
     Get the URL to create the security provider
     """
 
@@ -236,7 +236,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetDeleteDocumentUrl(self):
     """
-    GetDeleteDocumentUrl. 
+    GetDeleteDocumentUrl.
     Get the URL for the Delete Document call.
     """
 
@@ -250,7 +250,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetUpdateDocumentsUrl(self):
     """
-    GetUpdateDocumentsUrl. 
+    GetUpdateDocumentsUrl.
     Get the URL for the Update Documents (batch) call.
     """
 
@@ -264,7 +264,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetDeleteOlderThanUrl(self):
     """
-    GetDeleteOlderThanUrl. 
+    GetDeleteOlderThanUrl.
     Get the URL for the Delete Older Than call.
     """
 
@@ -277,7 +277,7 @@ class Push:
 
   def CheckReturnCode(self, p_Response ):
     """
-    CheckReturnCode. 
+    CheckReturnCode.
     Checks the return code of the response (from the request object).
     If not valid an error will be raised.
     :arg p_Response: response from request
@@ -288,7 +288,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def UpdateSourceStatus(self, p_SourceStatus: CoveoConstants.Constants.SourceStatusType):
     """
-    UpdateSourceStatus. 
+    UpdateSourceStatus.
     Update the Source status, so that the activity on the source reflects what is going on
     :arg p_SourceStatus: CoveoConstants.Constants.SourceStatusType (REBUILD, IDLE)
     """
@@ -305,7 +305,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetLargeFileContainer(self):
     """
-    GetLargeFileContainer. 
+    GetLargeFileContainer.
     Get the S3 Large Container information.
     returns: LargeFileContainer Class
     """
@@ -316,11 +316,11 @@ class Push:
 
     results = CoveoConstants.LargeFileContainer(json.loads(r.text))
     return results
-  
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def UploadDocument( self, p_UploadUri: str, p_CompressedFile : str):
     """
-    UploadDocument. 
+    UploadDocument.
     Upload a document to S3.
     :arg p_UploadUri: string, retrieved from the GetLargeFileContainer call
     :arg p_CompressedFile: string, Properly compressed file to upload as contents
@@ -332,11 +332,11 @@ class Push:
       Error(self, "UploadDocument: p_UploadUri is not present")
     if not p_CompressedFile:
       Error(self, "UploadDocument: p_CompressedFile is not present")
-    
+
     #Check if p_CompressedFile is base64 encoded, if so, decode it first
     if (isBase64(p_CompressedFile)):
       p_CompressedFile = base64.b64decode(p_CompressedFile)
-    
+
     r = requests.put(p_UploadUri, data=p_CompressedFile, headers={'Content-Type': 'application/octet-stream',CoveoConstants.Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_NAME:CoveoConstants.Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_VALUE})
     self.CheckReturnCode(r)
     self.logger.debug('UploadDocument, result: '+str(r.status_code))
@@ -344,7 +344,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def UploadDocuments( self, p_UploadUri: str, p_ToAdd: [], p_ToDelete: []):
     """
-    UploadDocuments. 
+    UploadDocuments.
     Upload a batch document to S3.
     :arg p_UploadUri: string, retrieved from the GetLargeFileContainer call
     :arg p_ToAdd: list of CoveoDocuments to add
@@ -369,7 +369,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def UploadPermissions( self, p_UploadUri: str ):
     """
-    UploadPermissions. 
+    UploadPermissions.
     Upload a batch permission to S3.
     :arg p_UploadUri: string, retrieved from the GetLargeFileContainer call
     """
@@ -388,7 +388,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def GetContainerAndUploadDocument(self, p_Content: str):
     """
-    GetContainerAndUploadDocument. 
+    GetContainerAndUploadDocument.
     Get a Large File Container instance and Upload the document to S3
     :arg p_Content: string, Properly compressed file to upload as contents
     return: S3 FileId value
@@ -403,11 +403,11 @@ class Push:
 
     return container.FileId
 
-    
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def UploadDocumentIfTooLarge(self, p_Document: Document ):
     """
-    UploadDocumentIfTooLarge. 
+    UploadDocumentIfTooLarge.
     Uploads an Uncompressed/Compressed Document, if it is to large a S3 container is created, document is being uploaded to s3
     :arg p_Document: Document
     """
@@ -426,7 +426,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddUpdateDocumentRequest(self, p_CoveoDocument: Document, p_OrderingId : int):
     """
-    AddUpdateDocumentRequest. 
+    AddUpdateDocumentRequest.
     Sents the document to the Push API, if previously uploaded to s3 the fileId is set
     :arg p_Document: Document
     :arg p_OrderingId: int
@@ -452,7 +452,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddDeleteDocumentRequest(self, p_DocumentId: str, p_OrderingId : int, p_DeleteChildren: bool):
     """
-    AddDeleteDocumentRequest. 
+    AddDeleteDocumentRequest.
     Deletes the document
     :arg p_DocumentId: CoveoDocument
     :arg p_OrderingId: int
@@ -474,7 +474,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def DeleteOlderThan(self, p_OrderingId: int):
     """
-    DeleteOlderThan. 
+    DeleteOlderThan.
     All documents with a smaller p_OrderingId will be removed from the index
     :arg p_OrderingId: int
     """
@@ -497,7 +497,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddSingleDocument( self, p_CoveoDocument: Document, p_UpdateStatus: bool = True, p_OrderingId: int = 0):
     """
-    AddSingleDocument. 
+    AddSingleDocument.
     Pushes the Document to the Push API
     :arg p_CoveoDocument: Document
     :arg p_UpdateStatus: bool (True), if the source status should be updated
@@ -514,7 +514,7 @@ class Push:
     if p_OrderingId == 0:
       p_OrderingId = self.CreateOrderingId()
 
-    #Update Source Status  
+    #Update Source Status
     if p_UpdateStatus:
       self.UpdateSourceStatus( CoveoConstants.Constants.SourceStatusType.Rebuild)
 
@@ -523,9 +523,9 @@ class Push:
         if (p_CoveoDocument.CompressedBinaryData !='' or p_CoveoDocument.Data !=''):
             self.UploadDocumentIfTooLarge(p_CoveoDocument)
         self.AddUpdateDocumentRequest( p_CoveoDocument, p_OrderingId)
-    finally: 
+    finally:
       p_CoveoDocument.Content = ''
-    
+
     #Update Source Status
     if p_UpdateStatus:
       self.UpdateSourceStatus( CoveoConstants.Constants.SourceStatusType.Idle)
@@ -533,7 +533,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def RemoveSingleDocument( self, p_DocumentId: str, p_UpdateStatus: bool = True, p_OrderingId: int = 0, p_DeleteChildren: bool = False):
     """
-    RemoveSingleDocument. 
+    RemoveSingleDocument.
     Deletes the CoveoDocument to the Push API
     :arg p_DocumentId: str of the document to delete
     :arg p_UpdateStatus: bool (True), if the source status should be updated
@@ -547,13 +547,13 @@ class Push:
     if p_OrderingId == 0:
       p_OrderingId = self.CreateOrderingId()
 
-    #Update Source Status  
+    #Update Source Status
     if p_UpdateStatus:
       self.UpdateSourceStatus( CoveoConstants.Constants.SourceStatusType.Rebuild)
 
     #Push Document to delete
     self.AddDeleteDocumentRequest( p_DocumentId, p_OrderingId, p_DeleteChildren)
-    
+
     #Update Source Status
     if p_UpdateStatus:
       self.UpdateSourceStatus( CoveoConstants.Constants.SourceStatusType.Idle)
@@ -561,7 +561,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddUpdateDocumentsRequest(self, p_FileId:str):
     """
-    AddUpdateDocumentsRequest. 
+    AddUpdateDocumentsRequest.
     Sents the document to the Push API, if previously uploaded to s3 the fileId is set
     :arg p_FileId: File Id retrieved from GetLargeFileContainer call
     """
@@ -578,7 +578,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def UploadBatch( self, p_ToAdd: [], p_ToDelete: []):
     """
-    UploadBatch. 
+    UploadBatch.
     Uploads the batch to S3 and calls the Push API to record the fileId
     :arg p_ToAdd: list of CoveoDocuments to add
     :arg p_ToDelete: list of CoveoDocumentToDelete to delete
@@ -587,7 +587,7 @@ class Push:
     self.logger.debug('UploadBatch')
     if not p_ToAdd and not p_ToDelete:
       Error(self, "UploadBatch: p_ToAdd and p_ToDelete are empty")
-    
+
     container = self.GetLargeFileContainer()
     if not container:
       Error(self, "UploadBatch: S3 container is null")
@@ -598,7 +598,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def ProcessAndUploadBatch( self, p_Documents: []):
     """
-    ProcessAndUploadBatch. 
+    ProcessAndUploadBatch.
     Will create batches of documents to push to S3 and to upload to the Push API
     :arg p_Documents: list of CoveoDocument/CoveoDocumentToDelete to add/delete
     """
@@ -640,7 +640,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddDocuments( self, p_CoveoDocumentsToAdd: [], p_CoveoDocumentsToDelete: [], p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
     """
-    AddDocuments. 
+    AddDocuments.
     Adds all documents in several batches to the Push API.
     :arg p_CoveoDocumentsToAdd: list of CoveoDocument to add
     :arg p_CoveoDocumentsToDelete: list of CoveoDocumentToDelete
@@ -656,7 +656,7 @@ class Push:
     if not p_CoveoDocumentsToAdd and not p_CoveoDocumentsToDelete:
       Error(self, "AddDocuments: p_CoveoDocumentsToAdd and p_CoveoDocumentsToDelete is empty")
 
-    #Update Source Status  
+    #Update Source Status
     if p_UpdateStatus:
       self.UpdateSourceStatus( CoveoConstants.Constants.SourceStatusType.Rebuild)
 
@@ -667,7 +667,7 @@ class Push:
       allDocuments = allDocuments.extend(p_CoveoDocumentsToDelete)
 
     self.ProcessAndUploadBatch( allDocuments )
-    
+
     #Delete Older Documents
     if p_DeleteOlder:
       self.DeleteOlderThan( StartOrderingId )
@@ -679,7 +679,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def Start( self, p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
     """
-    Start. 
+    Start.
     Starts a batch Push call, will set the start ordering Id and will update the status of the source
     :arg p_UpdateStatus: bool (True), if the source status should be updated
     :arg p_DeleteOlder: bool (False), if older documents should be removed from the index after the new push
@@ -690,14 +690,14 @@ class Push:
     #First check
     self.StartOrderingId = self.CreateOrderingId()
 
-    #Update Source Status  
+    #Update Source Status
     if p_UpdateStatus:
       self.UpdateSourceStatus( CoveoConstants.Constants.SourceStatusType.Rebuild)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def Add( self, p_CoveoDocument ):
     """
-    Add. 
+    Add.
     Add a document to the batch call, if the buffer max is reached content is pushed
     :arg p_CoveoDocument: Coveoocument of CoveoDocumentToDelete
     """
@@ -734,7 +734,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def End( self, p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
     """
-    End. 
+    End.
     Ends the batch call (when started with Start()). Will push the final batch, update the status and delete older documents
     :arg p_UpdateStatus: bool (True), if the source status should be updated
     :arg p_DeleteOlder: bool (False), if older documents should be removed from the index after the new push
@@ -757,7 +757,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddSecurityProvider( self, p_SecurityProviderId : str, p_Type: str, p_CascadingTo: {}, p_Endpoint : CoveoConstants.Constants.PlatformEndpoint = CoveoConstants.Constants.PlatformEndpoint.PROD_PLATFORM_API_URL):
     """
-    AddSecurityProvider. 
+    AddSecurityProvider.
     Add a single Permission Expansion (PermissionIdentityBody)
     :arg p_SecurityProviderId: Security Provider name and Id to use
     :arg p_Type: Type of provider, normally 'EXPANDED'
@@ -783,7 +783,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddPermissionExpansion( self, p_SecurityProviderId : str, p_Identity: PermissionIdentityExpansion, p_Members: [], p_Mappings:[], p_WellKnowns:[], p_OrderingId : int = 0 ):
     """
-    AddPermissionExpansion. 
+    AddPermissionExpansion.
     Add a single Permission Expansion Call (PermissionIdentityBody)
     :arg p_SecurityProviderId: Security Provider to use
     :arg p_Identity: PermissionIdentityExpansion.
@@ -819,7 +819,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def StartExpansion( self, p_SecurityProviderId : str, p_DeleteOlder: bool = False):
     """
-    StartExpansion. 
+    StartExpansion.
     Will start a Batch for Expansion/Permission updates.
     Using AddExpansionMember, AddExpansionMapping or AddExpansionDeleted operations are added.
     EndExpansion must be called at the end to write the Batch to the Push API.
@@ -836,7 +836,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddExpansionMember( self, p_Identity: PermissionIdentityExpansion, p_Members: [], p_Mappings:[], p_WellKnowns:[] ):
     """
-    AddExpansionMember. 
+    AddExpansionMember.
     For example: GROUP has 3 members.
     Add a single Permission Expansion (PermissionIdentityBody) to the Members
     :arg p_Identity: PermissionIdentityExpansion, must be the same as Identity in PermissionIdentity when pushing documents.
@@ -872,7 +872,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def AddExpansionDeleted( self, p_Identity: PermissionIdentityExpansion, p_Members: [], p_Mappings:[], p_WellKnowns:[] ):
     """
-    AddExpansionDeleted. 
+    AddExpansionDeleted.
     Add a single Permission Expansion (PermissionIdentityBody) to the Deleted, will be deleted from the security cache
     :arg p_Identity: PermissionIdentityExpansion, must be the same as Identity in PermissionIdentity when pushing documents.
     :arg p_Members: list of PermissionIdentityExpansion.
@@ -889,7 +889,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def EndExpansion( self, p_SecurityProviderId : str, p_DeleteOlder: bool = False):
     """
-    EndExpansion. 
+    EndExpansion.
     Will write the last batch of security updates to the push api
     :arg p_SecurityProviderId: Security Provider to use
     :arg p_DeleteOlder: bool (False), if older documents should be removed from the index after the new push
@@ -913,11 +913,11 @@ class Push:
 
     if p_DeleteOlder:
       self.DeletePermissionsOlderThan( p_SecurityProviderId, self.StartOrderingId )
-    
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def RemovePermissionIdentity( self, p_SecurityProviderId : str, p_PermissionIdentity: PermissionIdentityExpansion):
     """
-    RemovePermissionIdentity. 
+    RemovePermissionIdentity.
     Remove a single Permission Mapping
     :arg p_SecurityProviderId: Security Provider to use
     :arg p_PermissionIdentity: PermissionIdentityExpansion, permissionIdentity to remove
@@ -936,7 +936,7 @@ class Push:
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def DeletePermissionsOlderThan( self, p_SecurityProviderId : str, p_OrderingId: int):
     """
-    DeletePermissionOlderThan. 
+    DeletePermissionOlderThan.
     Deletes permissions older than p_OrderingId
     :arg p_SecurityProviderId: Security Provider to use
     :arg p_OrderingId: int, the OrderingId to use

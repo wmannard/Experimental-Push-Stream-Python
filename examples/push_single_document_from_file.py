@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # Push (small) Single document from a filestore
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 
 import json
 import re
@@ -19,12 +19,13 @@ from coveopush import Document
 from coveopush import CoveoPermissions
 from coveopush import CoveoConstants
 
+
 def main():
     sourceId = '--Enter your source id--'
     orgId = '--Enter your org id--'
     apiKey = '--Enter your API key--'
 
-    #Setup the push client
+    # Setup the push client
     push = CoveoPush.Push(sourceId, orgId, apiKey)
 
     myfile = 'testfiles\\Example.pptx'
@@ -44,7 +45,8 @@ def main():
     # Set permissions
     user_email = "wim@coveo.com"
     # Create a permission Identity
-    myperm = CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+    myperm = CoveoPermissions.PermissionIdentity(
+        CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
     # Set the permissions on the document
     allowAnonymous = True
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], allowAnonymous)
@@ -52,6 +54,6 @@ def main():
     # Push the document
     push.AddSingleDocument(mydoc)
 
-    
+
 if __name__ == '__main__':
     main()
