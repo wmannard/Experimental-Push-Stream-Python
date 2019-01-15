@@ -5,23 +5,8 @@
 # -------------------------------------------------------------------------------------
 from enum import Enum
 
-# ---------------------------------------------------------------------------------
 
-
-class LargeFileContainer:
-    """Class to store the properties returned by LargeFile Container call """
-    # The secure URI used to upload the item data into an Amazon S3 file.
-    UploadUri = ''
-
-    # The file identifier used to link the uploaded data to the pushed item.
-    # This value needs to be set in the item 'CompressedBinaryDataFileId' metadata.
-    FileId = ''
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Default constructor used by the deserialization.
-    def __init__(self, p_JSON):
-        self.UploadUri = p_JSON['uploadUri']
-        self.FileId = p_JSON['fileId']
+# [JD] Moved LargeFileContainer to CoveoPush.py
 
 
 # ---------------------------------------------------------------------------------
@@ -105,17 +90,6 @@ class Constants:
         DEFAULT_MAX_INTERVAL_TIME_TO_ADD_IN_MS = 2000
 
     # ---------------------------------------------------------------------------------
-    class PushVersion:
-        VERSION = "v1"
-
-    # ---------------------------------------------------------------------------------
-    class Endpoint:
-        PROD_PUSH_API_URL = "https://push.cloud.coveo.com"
-        HIPAA_PUSH_API_URL = "https://pushhipaa.cloud.coveo.com"
-        QA_PUSH_API_URL = "https://pushqa.cloud.coveo.com"
-        DEV_PUSH_API_URL = "https://pushdev.cloud.coveo.com"
-
-    # ---------------------------------------------------------------------------------
     class ErrorCodes:
         Codes = {}
         Codes["429"] = "Too many requests. Slow down your pushes! Are you using Batch Calls?"
@@ -134,17 +108,27 @@ class Constants:
         DEV_PLATFORM_API_URL = "https://platformdev.cloud.coveo.com"
 
     # ---------------------------------------------------------------------------------
+    class PlatformPaths:
+        CREATE_PROVIDER = "{endpoint}/rest/organizations/{org_id}/securityproviders/{prov_id}"
+
+    # ---------------------------------------------------------------------------------
+    class PushApiEndpoint:
+        PROD_PUSH_API_URL = "https://push.cloud.coveo.com/v1"
+        HIPAA_PUSH_API_URL = "https://pushhipaa.cloud.coveo.com/v1"
+        QA_PUSH_API_URL = "https://pushqa.cloud.coveo.com/v1"
+        DEV_PUSH_API_URL = "https://pushdev.cloud.coveo.com/v1"
+
+    # ---------------------------------------------------------------------------------
     class PushApiPaths:
-        SOURCE_ACTIVITY_STATUS = "{version}/organizations/{org_id}/sources/{src_id}/status"
-        SOURCE_DOCUMENTS = "{version}/organizations/{org_id}/sources/{src_id}/documents"
-        SOURCE_DOCUMENTS_BATCH = "{version}/organizations/{org_id}/sources/{src_id}/documents/batch"
-        SOURCE_DOCUMENTS_DELETE = "{version}/organizations/{org_id}/sources/{src_id}/documents/olderthan"
-        DOCUMENT_GET_CONTAINER = "{version}/organizations/{org_id}/files"
-        PROVIDER_PERMISSIONS = "{version}/organizations/{org_id}/providers/{prov_id}/permissions"
-        PROVIDER_PERMISSIONS_DELETE = "{version}/organizations/{org_id}/providers/{prov_id}/permissions/olderthan"
-        PROVIDER_PERMISSIONS_BATCH = "{version}/organizations/{org_id}/providers/{prov_id}/permissions/batch"
-        PROVIDER_MAPPINGS = "{version}/organizations/{org_id}/providers/{prov_id}/mappings"
-        CREATE_PROVIDER = "rest/organizations/{org_id}/securityproviders/{name_id}"
+        SOURCE_ACTIVITY_STATUS = "{endpoint}/organizations/{org_id}/sources/{src_id}/status"
+        SOURCE_DOCUMENTS = "{endpoint}/organizations/{org_id}/sources/{src_id}/documents"
+        SOURCE_DOCUMENTS_BATCH = "{endpoint}/organizations/{org_id}/sources/{src_id}/documents/batch"
+        SOURCE_DOCUMENTS_DELETE = "{endpoint}/organizations/{org_id}/sources/{src_id}/documents/olderthan"
+        DOCUMENT_GET_CONTAINER = "{endpoint}/organizations/{org_id}/files"
+        PROVIDER_PERMISSIONS = "{endpoint}/organizations/{org_id}/providers/{prov_id}/permissions"
+        PROVIDER_PERMISSIONS_DELETE = "{endpoint}/organizations/{org_id}/providers/{prov_id}/permissions/olderthan"
+        PROVIDER_PERMISSIONS_BATCH = "{endpoint}/organizations/{org_id}/providers/{prov_id}/permissions/batch"
+        PROVIDER_MAPPINGS = "{endpoint}/organizations/{org_id}/providers/{prov_id}/mappings"
 
     # ---------------------------------------------------------------------------------
     class Parameters:

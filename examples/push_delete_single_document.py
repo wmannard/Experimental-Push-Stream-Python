@@ -19,7 +19,7 @@ import datetime
 from coveopush import CoveoPush
 from coveopush import Document
 from coveopush import CoveoPermissions
-from coveopush import CoveoConstants
+from coveopush.CoveoConstants import Constants
 
 
 def main():
@@ -44,7 +44,7 @@ def main():
     user_email = "wim@coveo.com"
     # Create a permission identity
     myperm = CoveoPermissions.PermissionIdentity(
-        CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+        Constants.PermissionIdentityType.User, "", user_email)
     # Set the permissions on the document
     allowAnonymous = True
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], allowAnonymous)
