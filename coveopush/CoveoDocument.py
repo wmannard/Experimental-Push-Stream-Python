@@ -205,9 +205,14 @@ class Document:
         """
 
         self.logger.debug('SetDate')
-        # Check if empty
-        if (p_Date == ''):
-            Error(self, "SetDate: value not set")
+        # [JD] suggestions to support both `datetime` and `str` for dates
+        # Check if string
+        if (type(p_Date) is str):
+            p_Date = datetime.fromisoformat(p_Date)
+
+        # Check we have a datetime object
+        if (type(p_Date) is not datetime):
+            Error(self, "SetDate: invalid datetime object")
 
         self.Date = p_Date.isoformat()
 
