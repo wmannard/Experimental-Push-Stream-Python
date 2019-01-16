@@ -19,6 +19,7 @@ import base64
 import json
 import jsonpickle
 import logging
+import re
 import requests
 import time
 
@@ -138,6 +139,11 @@ class Push:
         self.Endpoint = p_Endpoint
         self.logger = logging.getLogger('CoveoPush')
         self.SetupLogging()
+
+        # validate Api Key
+        if not re.match(r'^\w{10}-\w{4}-\w{4}-\w{4}-\w{12}$', p_ApiKey):
+            self.logger.error('Invalid Api Key format')
+            Error(self, "Invalid Api Key format")
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def SetSizeMaxRequest(self, p_Max: int):
