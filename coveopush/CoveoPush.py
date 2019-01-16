@@ -498,7 +498,7 @@ class Push:
     def AddUpdateDocumentRequest(self, p_CoveoDocument: Document, p_OrderingId: int):
         """
         AddUpdateDocumentRequest.
-        Sents the document to the Push API, if previously uploaded to s3 the fileId is set
+        Sends the document to the Push API, if previously uploaded to s3 the fileId is set
         :arg p_Document: Document
         :arg p_OrderingId: int
         """
@@ -651,7 +651,7 @@ class Push:
     def AddUpdateDocumentsRequest(self, p_FileId: str):
         """
         AddUpdateDocumentsRequest.
-        Sents the document to the Push API, if previously uploaded to s3 the fileId is set
+        Sends the documents to the Push API, if previously uploaded to s3 the fileId is set
         :arg p_FileId: File Id retrieved from GetLargeFileContainer call
         """
 
@@ -971,7 +971,7 @@ class Push:
         permissionIdentityBody.AddMembers(p_Members)
         permissionIdentityBody.AddMappings(p_Mappings)
         permissionIdentityBody.AddWellKnowns(p_WellKnowns)
-        self.BatchPermissions.AddMember(permissionIdentityBody)
+        self.BatchPermissions.AddMembers(permissionIdentityBody)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddExpansionMapping(self, p_Identity: PermissionIdentityExpansion, p_Members: [], p_Mappings: [], p_WellKnowns: []):
@@ -989,7 +989,7 @@ class Push:
         permissionIdentityBody.AddMembers(p_Members)
         permissionIdentityBody.AddMappings(p_Mappings)
         permissionIdentityBody.AddWellKnowns(p_WellKnowns)
-        self.BatchPermissions.AddMapping(permissionIdentityBody)
+        self.BatchPermissions.AddMappings(permissionIdentityBody)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddExpansionDeleted(self, p_Identity: PermissionIdentityExpansion, p_Members: [], p_Mappings: [], p_WellKnowns: []):
@@ -1006,7 +1006,7 @@ class Push:
         permissionIdentityBody.AddMembers(p_Members)
         permissionIdentityBody.AddMappings(p_Mappings)
         permissionIdentityBody.AddWellKnowns(p_WellKnowns)
-        self.BatchPermissions.AddDelete(permissionIdentityBody)
+        self.BatchPermissions.AddDeletes(permissionIdentityBody)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def EndExpansion(self, p_SecurityProviderId: str, p_DeleteOlder: bool = False):

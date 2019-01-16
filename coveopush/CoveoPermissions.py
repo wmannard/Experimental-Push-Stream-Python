@@ -277,6 +277,10 @@ class PermissionIdentityBody:
         # Check if correct
         if not p_PermissionIdentities:
             return
+
+        if not isinstance(p_PermissionIdentities, (list,)):
+            p_PermissionIdentities = [p_PermissionIdentities]
+
         if not isinstance(p_PermissionIdentities, (list,)):
             Error(self, "Adding to " + attr + ": value is not a list")
 
@@ -285,16 +289,6 @@ class PermissionIdentityBody:
                   ": value is not of type PermissionIdentityExpansion")
 
         self.__dict__[attr].extend(p_PermissionIdentities)
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddMember(self, p_PermissionIdentity: PermissionIdentityExpansion):
-        self.__add('members', [p_PermissionIdentity])
-
-    def AddMapping(self, p_PermissionIdentity: PermissionIdentityExpansion):
-        self.__add('mappings', [p_PermissionIdentity])
-
-    def AddWellKnown(self, p_PermissionIdentity: PermissionIdentityExpansion):
-        self.__add('wellKnowns', [p_PermissionIdentity])
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMembers(self, p_PermissionIdentities: []):
@@ -329,98 +323,40 @@ class BatchPermissions:
         self.members = []
         self.deleted = []
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddMember(self, p_PermissionIdentityBody: PermissionIdentityBody):
+    def __add(self, attr: str, p_PermissionIdentityBodies: []):
         """
-        AddMember.
-        Add a PermissionIdentityBody to the Members.
-        :arg p_PermissionIdentityBody: PermissionIdentityBody.
-        """
-        # Check if correct
-        if not (type(p_PermissionIdentityBody) is PermissionIdentityBody):
-            Error(self, "AddMember: value is not of type PermissionIdentityBody")
-
-        self.members.append(p_PermissionIdentityBody)
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddMapping(self, p_PermissionIdentityBody: PermissionIdentityBody):
-        """
-        AddMapping.
-        Add a PermissionIdentityBody to the Mappings.
-        :arg p_PermissionIdentityBody: PermissionIdentityBody.
+        Add.
+        Add a list of p_PermissionIdentityBodies to self[attr].
+        :arg attr: name of array to add the identities to (mappings, members, wellKnowns).
+        :arg p_PermissionIdentity: PermissionIdentityExpansion.
         """
         # Check if correct
-        if not (type(p_PermissionIdentityBody) is PermissionIdentityBody):
-            Error(self, "AddMapping: value is not of type PermissionIdentity")
+        if not p_PermissionIdentityBodies:
+            return
 
-        self.mappings.append(p_PermissionIdentityBody)
+        if not isinstance(p_PermissionIdentityBodies, (list,)):
+            p_PermissionIdentityBodies = [p_PermissionIdentityBodies]
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddDelete(self, p_PermissionIdentityBody: PermissionIdentityBody):
-        """
-        AddDelete.
-        Add a PermissionIdentityBody to the Delete.
-        :arg p_PermissionIdentityBody: PermissionIdentityBody.
-        """
-        # Check if correct
-        if not (type(p_PermissionIdentityBody) is PermissionIdentityBody):
-            Error(self, "AddDelete: value is not of type PermissionIdentity")
+        if not isinstance(p_PermissionIdentityBodies, (list,)):
+            Error(self, "Adding to " + attr + ": value is not a list")
 
-        self.deleted.append(p_PermissionIdentityBody)
+        if not (type(p_PermissionIdentityBodies[0]) is PermissionIdentityBody):
+            Error(self, "Adding to " + attr +
+                  ": value is not of type PermissionIdentity")
+
+        self.__dict__[attr].extend(p_PermissionIdentityBodies)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMembers(self, p_PermissionIdentityBodies: []):
-        """
-        AddMembers.
-        Add a list of p_PermissionIdentityBodies to the Members.
-        :arg p_PermissionIdentityBodies: list of PermissionIdentityBody.
-        """
-        # Check if correct
-        if not p_PermissionIdentityBodies:
-            return
-        if not isinstance(p_PermissionIdentityBodies, (list,)):
-            Error(self, "AddMembers: value is not a list")
-
-        if not (type(p_PermissionIdentityBodies[0]) is PermissionIdentityBody):
-            Error(self, "AddMembers: value is not of type PermissionIdentity")
-
-        self.members.extend(p_PermissionIdentityBodies)
+        self.__add('members', p_PermissionIdentityBodies)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMappings(self, p_PermissionIdentityBodies: []):
-        """
-        AddMappings.
-        Add a list of p_PermissionIdentityBodies to the Mappings.
-        :arg p_PermissionIdentities: list of PermissionIdentityBody.
-        """
-        # Check if correct
-        if not p_PermissionIdentityBodies:
-            return
-        if not isinstance(p_PermissionIdentityBodies, (list,)):
-            Error(self, "AddMappings: value is not a list")
-
-        if not (type(p_PermissionIdentityBodies[0]) is PermissionIdentityBody):
-            Error(self, "AddMappings: value is not of type PermissionIdentity")
-
         self.mappings.extend(p_PermissionIdentityBodies)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddDeletes(self, p_PermissionIdentityBodies: []):
-        """
-        AddWellKnowns.
-        Add a list of p_PermissionIdentityBodies to the Deletes.
-        :arg p_PermissionIdentityBodies: list of PermissionIdentityBody.
-        """
-        # Check if correct
-        if not p_PermissionIdentityBodies:
-            return
-        if not isinstance(p_PermissionIdentityBodies, (list,)):
-            Error(self, "AddDeletes: value is not a list")
-
-        if not (type(p_PermissionIdentityBodies[0]) is PermissionIdentityBody):
-            Error(self, "AddDeletes: value is not of type PermissionIdentityBody")
-
-        self.deleted.extend(p_PermissionIdentityBodies)
+        self.__add('deleted', p_PermissionIdentityBodies)
 
 
 class SecurityProviderReference:
