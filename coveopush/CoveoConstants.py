@@ -6,9 +6,6 @@
 from enum import Enum
 
 
-# [JD] Moved LargeFileContainer to CoveoPush.py
-
-
 # ---------------------------------------------------------------------------------
 class Constants:
     """Constants used within the Push Classes """

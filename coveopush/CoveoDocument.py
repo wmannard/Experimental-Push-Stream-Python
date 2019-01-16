@@ -204,7 +204,6 @@ class Document:
         """
 
         self.logger.debug('SetDate')
-        # [JD] suggestions to support both `datetime` and `str` for dates
         # Check if string
         if (type(p_Date) is str):
             p_Date = datetime.fromisoformat(p_Date)

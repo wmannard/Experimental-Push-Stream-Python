@@ -287,8 +287,6 @@ class PermissionIdentityBody:
         self.__dict__[attr].extend(p_PermissionIdentities)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # [JD] I feel we don't need these singular function.
-    # [JD] We can get away with the plural (array) ones and accept single value in them if we want to be nice.
     def AddMember(self, p_PermissionIdentity: PermissionIdentityExpansion):
         self.__add('members', [p_PermissionIdentity])
 
