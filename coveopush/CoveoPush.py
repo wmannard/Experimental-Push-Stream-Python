@@ -14,14 +14,13 @@ from .CoveoPermissions import PermissionIdentityBody
 from .CoveoPermissions import BatchPermissions
 from .CoveoPermissions import SecurityProvider
 from .CoveoPermissions import SecurityProviderReference
-import requests
-import json
-import zlib
+
 import base64
-import time
-import logging
+import json
 import jsonpickle
-import sys
+import logging
+import requests
+import time
 
 
 def Error(log, err):
