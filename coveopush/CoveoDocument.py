@@ -118,8 +118,6 @@ class Document:
     DocumentId = ''
     Title = ''
     ModifiedDate = ''
-    # [JD] IndexedDate shouldn't be set here, it should be set by the platform, right?
-    IndexedDate = ''
     CompressedBinaryData = ''
     CompressedBinaryDataFileId = ''
     CompressionType = ''
@@ -143,7 +141,6 @@ class Document:
         self.Date = ''
         self.Title = ''
         self.ModifiedDate = ''
-        self.IndexedDate = ''
         self.CompressedBinaryData = ''
         self.CompressedBinaryDataFileId = ''
         self.CompressionType = ''
@@ -168,7 +165,6 @@ class Document:
         all["DocumentId"] = self.DocumentId
         all["Title"] = self.Title
         all["ModifiedDate"] = self.ModifiedDate
-        all["IndexedDate"] = self.IndexedDate
         if self.CompressedBinaryData:
             all["CompressedBinaryData"] = self.CompressedBinaryData
         if self.CompressedBinaryDataFileId:

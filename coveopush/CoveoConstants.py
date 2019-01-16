@@ -43,7 +43,6 @@ class Constants:
         "date",
         "documentId",
         "fileExtension",
-        "indexedDate",
         "parentId",
         "permissions",
         "orderingId"
