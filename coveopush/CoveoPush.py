@@ -173,8 +173,7 @@ class Push:
         :arg p_Format: Format of the log file ('%(asctime)s %(levelname)-5s [%(filename)s:%(lineno)s %(funcName)s()] %(message)s')
         """
 
-        logging.basicConfig(filename=p_OutputFile, level=p_LEVEL,
-                            format=p_Format, datefmt='%Y-%m-%d %H:%M:%S')
+        logging.basicConfig(filename=p_OutputFile, level=p_LEVEL, format=p_Format, datefmt='%Y-%m-%d %H:%M:%S')
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def GetRequestHeaders(self):
@@ -197,7 +196,6 @@ class Push:
         Gets the Request headers needed for calls to Amazon S3.
         """
 
-        self.logger.debug('GetRequestHeadersForS3')
         return {
             'Content-Type': 'application/octet-stream',
             Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_NAME: Constants.HttpHeaders.AMAZON_S3_SERVER_SIDE_ENCRYPTION_VALUE
@@ -212,12 +210,13 @@ class Push:
         Get the URL to update the Status of the source call
         """
 
-        self.logger.debug('GetStatusUrl')
-        return Constants.PushApiPaths.SOURCE_ACTIVITY_STATUS.format(
+        url = Constants.PushApiPaths.SOURCE_ACTIVITY_STATUS.format(
             endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
+        self.logger.debug(url)
+        return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def CreateOrderingId(self):
@@ -226,8 +225,9 @@ class Push:
         Create an Ordering Id, used to set the order of the pushed items
         """
 
-        self.logger.debug('CreateOrderingId')
-        return int(round(time.time() * 1000))
+        ordering_id = int(round(time.time() * 1000))
+        self.logger.debug(ordering_id)
+        return ordering_id
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.DOCUMENT_GET_CONTAINER)
@@ -237,11 +237,12 @@ class Push:
         Get the URL for the Large File Container call.
         """
 
-        self.logger.debug('GetLargeFileContainerUrl')
-        return Constants.PushApiPaths.DOCUMENT_GET_CONTAINER.format(
+        url = Constants.PushApiPaths.DOCUMENT_GET_CONTAINER.format(
             endpoint=self.Endpoint,
             org_id=self.OrganizationId
         )
+        self.logger.debug(url)
+        return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS)
@@ -251,12 +252,13 @@ class Push:
         Get the URL for the Update Document call.
         """
 
-        self.logger.debug('GetUpdateDocumentUrl')
-        return Constants.PushApiPaths.SOURCE_DOCUMENTS.format(
+        url = Constants.PushApiPaths.SOURCE_DOCUMENTS.format(
             endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
+        self.logger.debug(url)
+        return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def GetSecurityProviderUrl(self, p_Endpoint: str, p_SecurityProviderId: str):
@@ -265,12 +267,13 @@ class Push:
         Get the URL to create the security provider
         """
 
-        self.logger.debug('GetSecurityProviderUrl')
-        return Constants.PlatformPaths.CREATE_PROVIDER.format(
+        url = Constants.PlatformPaths.CREATE_PROVIDER.format(
             endpoint=p_Endpoint,
             org_id=self.OrganizationId,
             prov_id=p_SecurityProviderId
         )
+        self.logger.debug(url)
+        return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH)
@@ -280,12 +283,13 @@ class Push:
         Get the URL for the Delete Document call.
         """
 
-        self.logger.debug('GetDeleteDocumentUrl')
-        return Constants.PushApiPaths.SOURCE_DOCUMENTS.format(
+        url = Constants.PushApiPaths.SOURCE_DOCUMENTS.format(
             endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
+        self.logger.debug(url)
+        return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH)
@@ -295,12 +299,13 @@ class Push:
         Get the URL for the Update Documents (batch) call.
         """
 
-        self.logger.debug('GetUpdateDocumentsUrl')
-        return Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH.format(
+        url = Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH.format(
             endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
+        self.logger.debug(url)
+        return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_DELETE)
@@ -310,24 +315,26 @@ class Push:
         Get the URL for the Delete Older Than call.
         """
 
-        self.logger.debug('GetDeleteOlderThanUrl')
-        return Constants.PushApiPaths.SOURCE_DOCUMENTS_DELETE.format(
+        url = Constants.PushApiPaths.SOURCE_DOCUMENTS_DELETE.format(
             endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId
         )
+        self.logger.debug(url)
+        return url
 
     def GetUrl(self, path, prov_id: str = ''):
         """
         Return path with values (endpoint, org, source, provider) set accordingly.
         """
-        self.logger.debug('GetUrl')
-        return path.format(
+        url = path.format(
             endpoint=self.Endpoint,
             org_id=self.OrganizationId,
             src_id=self.SourceId,
             prov_id=prov_id
         )
+        self.logger.debug(url)
+        return url
 
     def CheckReturnCode(self, p_Response):
         """
@@ -337,6 +344,7 @@ class Push:
         :arg p_Response: response from request
         """
         p_Response.raise_for_status()
+        self.logger.debug(p_Response.status_code)
         return p_Response.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -347,7 +355,7 @@ class Push:
         :arg p_SourceStatus: Constants.SourceStatusType (REBUILD, IDLE)
         """
 
-        self.logger.debug('UpdateSourceStatus')
+        self.logger.debug('Changing status to ' + p_SourceStatus.value)
         params = {
             Constants.Parameters.STATUS_TYPE: p_SourceStatus.value
         }
@@ -368,7 +376,7 @@ class Push:
         returns: LargeFileContainer Class
         """
 
-        self.logger.debug('GetLargeFileContainer')
+        self.logger.debug(self.GetLargeFileContainerUrl())
         r = requests.post(
             self.GetLargeFileContainerUrl(),
             headers=self.GetRequestHeaders()
@@ -387,7 +395,7 @@ class Push:
         :arg p_CompressedFile: string, Properly compressed file to upload as contents
         """
 
-        self.logger.debug('UploadDocument')
+        self.logger.debug(p_UploadUri)
 
         if not p_UploadUri:
             Error(self, "UploadDocument: p_UploadUri is not present")
@@ -404,7 +412,7 @@ class Push:
             headers=self.GetRequestHeadersForS3()
         )
         self.CheckReturnCode(r)
-        self.logger.debug('UploadDocument, result: '+str(r.status_code))
+        self.logger.debug('result: '+str(r.status_code))
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def UploadDocuments(self, p_UploadUri: str, p_ToAdd: [], p_ToDelete: []):
@@ -416,7 +424,7 @@ class Push:
         :arg p_ToDelete: list of CoveoDocumentToDelete to delete
         """
 
-        self.logger.debug('UploadDocuments')
+        self.logger.debug(p_UploadUri)
 
         if not p_UploadUri:
             Error(self, "UploadDocument: p_UploadUri is not present")
@@ -433,7 +441,7 @@ class Push:
             headers=self.GetRequestHeadersForS3()
         )
         self.CheckReturnCode(r)
-        self.logger.debug('UploadDocuments, result: '+str(r.status_code))
+        self.logger.debug('result: '+str(r.status_code))
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def UploadPermissions(self, p_UploadUri: str):
@@ -443,22 +451,22 @@ class Push:
         :arg p_UploadUri: string, retrieved from the GetLargeFileContainer call
         """
 
-        self.logger.debug('UploadPermissions')
+        self.logger.debug(p_UploadUri)
 
         if not p_UploadUri:
             Error(self, "UploadPermissions: p_UploadUri is not present")
 
-        self.logger.debug(
-            "JSON: "+jsonpickle.encode(self.BatchPermissions, unpicklable=False))
+        pickled_permissions = jsonpickle.encode(self.BatchPermissions, unpicklable=False)
+        self.logger.debug("JSON: " + pickled_permissions)
 
         r = requests.put(
             p_UploadUri,
-            data=jsonpickle.encode(self.BatchPermissions, unpicklable=False),
+            data=pickled_permissions,
             headers=self.GetRequestHeadersForS3()
         )
 
         self.CheckReturnCode(r)
-        self.logger.debug('UploadPermissions, result: '+str(r.status_code))
+        self.logger.debug('result: '+str(r.status_code))
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def GetContainerAndUploadDocument(self, p_Content: str):
@@ -487,8 +495,9 @@ class Push:
         :arg p_Document: Document
         """
 
-        self.logger.debug('UploadDocumentIfTooLarge')
         size = len(p_Document.Data)+len(p_Document.CompressedBinaryData)
+        self.logger.debug('size = ' + str(size))
+
         if (size > Constants.COMPRESSED_DATA_MAX_SIZE_IN_BYTES):
             data = ''
             if p_Document.Data:
@@ -508,7 +517,7 @@ class Push:
         :arg p_OrderingId: int
         """
 
-        self.logger.debug('AddUpdateDocumentRequest')
+        self.logger.debug(p_CoveoDocument.DocumentId + ', ' + p_OrderingId)
         params = {
             Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId,
             Constants.Parameters.ORDERING_ID: p_OrderingId
@@ -519,7 +528,7 @@ class Push:
             params[Constants.Parameters.COMPRESSION_TYPE] = p_CoveoDocument.CompressionType
 
         body = jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)
-        self.logger.debug('AddUpdateDocumentRequest, body: '+body)
+        self.logger.debug('body: ' + body)
 
         # make POST request to change status
         r = requests.put(
@@ -608,8 +617,7 @@ class Push:
 
         # Update Source Status
         if p_UpdateStatus:
-            self.UpdateSourceStatus(
-                Constants.SourceStatusType.Rebuild)
+            self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
 
         # Push Document
         try:
@@ -621,8 +629,7 @@ class Push:
 
         # Update Source Status
         if p_UpdateStatus:
-            self.UpdateSourceStatus(
-                Constants.SourceStatusType.Idle)
+            self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def RemoveSingleDocument(self, p_DocumentId: str, p_UpdateStatus: bool = True, p_OrderingId: int = 0, p_DeleteChildren: bool = False):
@@ -635,7 +642,7 @@ class Push:
         :arg p_DeleteChildren: bool (False), if children must be deleted
         """
 
-        self.logger.debug('RemoveSingleDocument')
+        self.logger.debug('Removing ' + p_DocumentId)
         # Single Call
 
         if p_OrderingId == 0:
@@ -709,17 +716,14 @@ class Push:
         for document in p_Documents:
             # Add 1 byte to account for the comma in the JSON array.
             # documentSize = len(json.dumps(document,default=lambda x: x.__dict__)) + 1
-            documentSize = len(jsonpickle.encode(
-                document.ToJson(), unpicklable=False)) + 1
+            documentSize = len(jsonpickle.encode(document.ToJson(), unpicklable=False)) + 1
 
             totalSize += documentSize
             self.logger.debug("Doc: "+document.DocumentId)
-            self.logger.debug("Currentsize: "+str(totalSize) +
-                              " vs max: "+str(self.GetSizeMaxRequest()))
+            self.logger.debug("Currentsize: "+str(totalSize) + " vs max: "+str(self.GetSizeMaxRequest()))
 
             if (documentSize > self.GetSizeMaxRequest()):
-                Error(self, "No document can be larger than " +
-                      str(self.GetSizeMaxRequest())+" bytes in size.")
+                Error(self, "No document can be larger than " + str(self.GetSizeMaxRequest())+" bytes in size.")
 
             if (totalSize > self.GetSizeMaxRequest() - (len(currentBatchToAddUpdate) + len(currentBatchToDelete))):
                 self.UploadBatch(currentBatchToAddUpdate, currentBatchToDelete)
@@ -733,8 +737,7 @@ class Push:
                 # Validate each document
                 valid, error = Validate(document)
                 if not valid:
-                    Error(self, "PushDocument: " +
-                          document.DocumentId + ", " + error)
+                    Error(self, "PushDocument: " + document.DocumentId + ", " + error)
                 else:
                     currentBatchToAddUpdate.append(document.ToJson())
 
@@ -757,8 +760,7 @@ class Push:
         StartOrderingId = self.CreateOrderingId()
 
         if not p_CoveoDocumentsToAdd and not p_CoveoDocumentsToDelete:
-            Error(
-                self, "AddDocuments: p_CoveoDocumentsToAdd and p_CoveoDocumentsToDelete is empty")
+            Error(self, "AddDocuments: p_CoveoDocumentsToAdd and p_CoveoDocumentsToDelete is empty")
 
         # Update Source Status
         if p_UpdateStatus:
@@ -812,16 +814,14 @@ class Push:
         if not p_CoveoDocument:
             Error(self, "Add: p_CoveoDocument is empty")
 
-        documentSize = len(jsonpickle.encode(
-            p_CoveoDocument.ToJson(), unpicklable=False)) + 1
+        documentSize = len(jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)) + 1
+
         self.totalSize += documentSize
         self.logger.debug("Doc: "+p_CoveoDocument.DocumentId)
-        self.logger.debug("Currentsize: "+str(self.totalSize) +
-                          " vs max: "+str(self.GetSizeMaxRequest()))
+        self.logger.debug("Currentsize: "+str(self.totalSize) + " vs max: "+str(self.GetSizeMaxRequest()))
 
         if (documentSize > self.GetSizeMaxRequest()):
-            Error(self, "No document can be larger than " +
-                  str(self.GetSizeMaxRequest())+" bytes in size.")
+            Error(self, "No document can be larger than " + str(self.GetSizeMaxRequest())+" bytes in size.")
 
         if (self.totalSize > self.GetSizeMaxRequest() - (len(self.ToAdd) + len(self.ToDel))):
             self.UploadBatch(self.ToAdd, self.ToDel)
@@ -860,8 +860,7 @@ class Push:
 
         # Update Source Status
         if p_UpdateStatus:
-            self.UpdateSourceStatus(
-                Constants.SourceStatusType.Idle)
+            self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddSecurityProvider(self, p_SecurityProviderId: str, p_Type: str, p_CascadingTo: {}, p_Endpoint: Constants.PlatformEndpoint = Constants.PlatformEndpoint.PROD_PLATFORM_API_URL):
@@ -874,8 +873,7 @@ class Push:
         :arg p_Endpoint: Constants.PlatformEndpoint
         """
         secProvider = SecurityProvider()
-        secProviderReference = SecurityProviderReference(
-            self.SourceId, "SOURCE")
+        secProviderReference = SecurityProviderReference(self.SourceId, "SOURCE")
         secProvider.referencedBy = [secProviderReference]
         secProvider.name = p_SecurityProviderId
         secProvider.type = p_Type
@@ -885,11 +883,11 @@ class Push:
         self.logger.debug('AddSecurityProvider')
 
         # make POST request to change status
-        self.logger.debug(
-            "JSON: "+jsonpickle.encode(secProvider, unpicklable=False))
+        pickled_provider = jsonpickle.encode(secProvider, unpicklable=False)
+        self.logger.debug("JSON: "+pickled_provider)
         r = requests.put(
             self.GetSecurityProviderUrl(p_Endpoint, p_SecurityProviderId),
-            data=jsonpickle.encode(secProvider, unpicklable=False),
+            data=pickled_provider,
             headers=self.GetRequestHeaders()
         )
         self.CheckReturnCode(r)
@@ -931,12 +929,12 @@ class Push:
             prov_id=p_SecurityProviderId
         )
 
-        self.logger.debug(
-            "JSON: "+jsonpickle.encode(permissionIdentityBody, unpicklable=False))
+        pickled_identity = jsonpickle.encode(permissionIdentityBody, unpicklable=False)
+        self.logger.debug("JSON: "+pickled_identity)
         # Update permission
         r = requests.put(
             resourcePath,
-            data=jsonpickle.encode(permissionIdentityBody, unpicklable=False),
+            data=pickled_identity,
             headers=self.GetRequestHeaders(),
             params=params
         )
@@ -1047,8 +1045,7 @@ class Push:
         self.CheckReturnCode(r)
 
         if p_DeleteOlder:
-            self.DeletePermissionsOlderThan(
-                p_SecurityProviderId, self.StartOrderingId)
+            self.DeletePermissionsOlderThan(p_SecurityProviderId, self.StartOrderingId)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def RemovePermissionIdentity(self, p_SecurityProviderId: str, p_PermissionIdentity: PermissionIdentityExpansion):
@@ -1068,11 +1065,13 @@ class Push:
         )
 
         # Update permission
-        self.logger.debug(
-            "JSON: "+jsonpickle.encode(permissionIdentityBody, unpicklable=False))
+        pickled_identity = jsonpickle.encode(permissionIdentityBody, unpicklable=False)
+
+        self.logger.debug("JSON: " + pickled_identity)
+
         r = requests.delete(
             resourcePath,
-            data=jsonpickle.encode(permissionIdentityBody, unpicklable=False),
+            data=pickled_identity,
             headers=self.GetRequestHeaders()
         )
         self.CheckReturnCode(r)
