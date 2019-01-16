@@ -165,16 +165,16 @@ class Push:
         return Constants.MAXIMUM_REQUEST_SIZE_IN_BYTES
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def SetupLogging(self, p_LEVEL=logging.DEBUG, p_OutputFile='CoveoPush.log', p_Format="'%(asctime)s %(levelname)s %(message)s'"):
+    def SetupLogging(self, p_LEVEL=logging.DEBUG, p_OutputFile='CoveoPush.log', p_Format="%(asctime)s %(levelname)-5s [%(filename)s:%(lineno)s %(funcName)s()] %(message)s"):
         """
         SetupLogging.
         :arg p_LEVEL: Logging level (logging.DEBUG)
         :arg p_OutputFile: Log file to write (CoveoPush.log)
-        :arg p_Format: Format of the log file ('%(asctime)s %(levelname)s %(message)s')
+        :arg p_Format: Format of the log file ('%(asctime)s %(levelname)-5s [%(filename)s:%(lineno)s %(funcName)s()] %(message)s')
         """
 
         logging.basicConfig(filename=p_OutputFile, level=p_LEVEL,
-                            format=p_Format, datefmt='%m/%d/%Y %I:%M:%S %p')
+                            format=p_Format, datefmt='%Y-%m-%d %H:%M:%S')
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def GetRequestHeaders(self):
