@@ -510,6 +510,7 @@ class Push:
         """
 
         self.logger.debug(p_CoveoDocument.DocumentId + ', ' + p_OrderingId)
+        self.logger.debug(p_CoveoDocument.DocumentId + ', ' + str(p_OrderingId))
         params = {
             Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId,
             Constants.Parameters.ORDERING_ID: p_OrderingId
