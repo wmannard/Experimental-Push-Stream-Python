@@ -531,7 +531,7 @@ class Push:
             params[Constants.Parameters.COMPRESSION_TYPE] = p_CoveoDocument.CompressionType
 
         body = jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)
-        self.logger.debug(body)
+        # self.logger.debug(body)
 
         # make POST request to change status
         r = requests.put(

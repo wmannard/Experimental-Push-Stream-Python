@@ -56,7 +56,7 @@ def Validate(obj):
             error.append('DocumentId is not a valid URL format [missing scheme]: ' + obj.DocumentId)
             result = False
 
-        if not parsed_url.netloc:
+        if not (parsed_url.netloc or parsed_url.path):
             error.append('DocumentId is not a valid URL format [missing path]: ' + obj.DocumentId)
             result = False
 
