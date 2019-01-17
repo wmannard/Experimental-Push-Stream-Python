@@ -178,6 +178,8 @@ class Document:
             all["Permissions"] = self.Permissions
         for meta in self.MetaData:
             all[meta] = self.MetaData[meta]
+
+        self.logger.debug(all)
         return all
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

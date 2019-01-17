@@ -74,8 +74,7 @@ class Push:
         mydoc.AddMetadata("connectortype", "CSV")
         mydoc.Title = "THIS IS A TEST"
         user_email = "wim@coveo.com"
-        myperm = CoveoPermissions.PermissionIdentity(
-            Constants.PermissionIdentityType.User, "", user_email )
+        myperm = CoveoPermissions.PermissionIdentity(Constants.PermissionIdentityType.User, "", user_email )
         allowAnonymous = True
         mydoc.SetAllowedAndDeniedPermissions([myperm], [], allowAnonymous)
         push.AddSingleDocument(mydoc)
@@ -144,6 +143,10 @@ class Push:
             self.logger.error('Invalid Api Key format')
             Error(self, "Invalid Api Key format")
 
+        self.logger.debug('\n\n')
+        self.logger.debug('------------------------------')
+        self.logger.debug('Pushing to source ' + self.SourceId)
+
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def SetSizeMaxRequest(self, p_Max: int):
         """
@@ -173,6 +176,11 @@ class Push:
         """
 
         logging.basicConfig(filename=p_OutputFile, level=p_LEVEL, format=p_Format, datefmt='%Y-%m-%d %H:%M:%S')
+
+        if p_LEVEL == logging.DEBUG:
+            req_log = logging.getLogger('requests.packages.urllib3')
+            req_log.setLevel(logging.DEBUG)
+            req_log.propagate = True
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def GetRequestHeaders(self):
@@ -514,6 +522,8 @@ class Push:
             Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId,
             Constants.Parameters.ORDERING_ID: p_OrderingId
         }
+
+        self.logger.debug(params)
 
         # Set the compression type parameter
         if (p_CoveoDocument.CompressedBinaryData != '' or p_CoveoDocument.CompressedBinaryDataFileId != ''):
