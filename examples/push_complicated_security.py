@@ -25,6 +25,10 @@ def main():
     orgId = '--Enter your org id--'
     apiKey = '--Enter your API key--'
 
+    # Shortcut for constants
+    GROUP = CoveoConstants.Constants.PermissionIdentityType.Group
+    USER = CoveoConstants.Constants.PermissionIdentityType.User
+
     # Setup the push client
     push = CoveoPush.Push(sourceId, orgId, apiKey)
 
@@ -90,20 +94,20 @@ def main():
     # Set the allowed permissions for the first set of the first level
     for user in users:
         # Create the permission identity
-        permLevel1Set1.AddAllowedPermissions(CoveoPermissions.PermissionIdentity(
-            CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user))
+        permLevel1Set1.AddAllowedPermissions(
+            CoveoPermissions.PermissionIdentity(USER, mysecprovidername, user))
 
     # Set the denied permissions for the second set of the first level
     for user in deniedusers:
         # Create the permission identity
-        permLevel1Set2.AddDeniedPermissions(CoveoPermissions.PermissionIdentity(
-            CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user))
+        permLevel1Set2.AddDeniedPermissions(
+            CoveoPermissions.PermissionIdentity(USER, mysecprovidername, user))
 
     # Set the allowed permissions for the first set of the second level
     for group in groups:
         # Create the permission identity
-        permLevel2Set.AddAllowedPermissions(CoveoPermissions.PermissionIdentity(
-            CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, group))
+        permLevel2Set.AddAllowedPermissions(
+            CoveoPermissions.PermissionIdentity(GROUP, mysecprovidername, group))
 
     # Set the permission sets to the appropriate level
     permLevel1.AddPermissionSet(permLevel1Set1)
@@ -129,16 +133,19 @@ def main():
     groups.pop()
 
     push.StartExpansion(mysecprovidername)
+
     # group memberships for: HR, RD
     for group in groups:
         # for each group set the users
         members = []
         for user in usersingroup:
             # Create a permission Identity
-            members.append(CoveoPermissions.PermissionIdentityExpansion(
-                CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user))
-        push.AddExpansionMember(CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, group), members, [], [])
+            members.append(
+                CoveoPermissions.PermissionIdentityExpansion(USER, mysecprovidername, user)
+            )
+        push.AddExpansionMember(
+            CoveoPermissions.PermissionIdentityExpansion(GROUP, mysecprovidername, group), members, [], []
+        )
 
     # mappings for all users, from userid to email address
     users.extend(deniedusers)
@@ -146,13 +153,16 @@ def main():
     for user in users:
         # Create a permission Identity
         mappings = []
-        mappings.append(CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.User, "Email Security Provider", user+"@coveo.com"))
+        mappings.append(
+            CoveoPermissions.PermissionIdentityExpansion(USER, "Email Security Provider", user+"@coveo.com")
+        )
+
         wellknowns = []
-        wellknowns.append(CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, "Everyone"))
-        push.AddExpansionMapping(CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user), [], mappings, wellknowns)
+        wellknowns.append(CoveoPermissions.PermissionIdentityExpansion(GROUP, mysecprovidername, "Everyone"))
+        push.AddExpansionMapping(
+            CoveoPermissions.PermissionIdentityExpansion(USER, mysecprovidername, user),
+            [], mappings, wellknowns
+        )
 
     # Remove deleted users
     # Deleted Users
@@ -161,8 +171,9 @@ def main():
     delusers.append("petern")
     for user in delusers:
         # Add each identity to delete to the Deleted
-        push.AddExpansionDeleted(CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user), [], [], [])
+        push.AddExpansionDeleted(
+            CoveoPermissions.PermissionIdentityExpansion(USER, mysecprovidername, user),
+            [], [], [])
 
     # End the expansion and write the last batch
     push.EndExpansion(mysecprovidername)
@@ -175,28 +186,34 @@ def main():
     input("Press any key to continue...")
 
     # Add a single call, add the Sales group
-    usersingroup = []
-    usersingroup.append("wiminsalesgroup")
-    usersingroup.append("peterinsalesgroup")
+    usersingroup = ["wiminsalesgroup", "peterinsalesgroup"]
 
     members = []
     for user in usersingroup:
         # Create a permission identity
-        mappings = []
-        mappings.append(CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.User, "Email Security Provider", user + "@coveo.com"))
-        wellknowns = []
-        wellknowns.append(CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, "Everyone"))
-        members.append(CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user))
-        push.AddPermissionExpansion(mysecprovidername, CoveoPermissions.PermissionIdentityExpansion(
-            CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user), [], mappings, wellknowns)
+        mappings = [
+            CoveoPermissions.PermissionIdentityExpansion(USER, "Email Security Provider", user + "@coveo.com")
+        ]
+        wellknowns = [
+            CoveoPermissions.PermissionIdentityExpansion(GROUP, mysecprovidername, "Everyone")
+        ]
+        members.append(CoveoPermissions.PermissionIdentityExpansion(USER, mysecprovidername, user))
+        push.AddPermissionExpansion(
+            mysecprovidername,
+            CoveoPermissions.PermissionIdentityExpansion(USER, mysecprovidername, user),
+            [], mappings, wellknowns
+        )
 
-    push.AddPermissionExpansion(mysecprovidername, CoveoPermissions.PermissionIdentityExpansion(
-        CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, "Everyone"), members, [], [])
-    push.AddPermissionExpansion(mysecprovidername, CoveoPermissions.PermissionIdentityExpansion(
-        CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, "SALES"), members, [], [])
+    push.AddPermissionExpansion(
+        mysecprovidername,
+        CoveoPermissions.PermissionIdentityExpansion(GROUP, mysecprovidername, "Everyone"),
+        members, [], []
+    )
+    push.AddPermissionExpansion(
+        mysecprovidername,
+        CoveoPermissions.PermissionIdentityExpansion(GROUP, mysecprovidername, "SALES"),
+        members, [], []
+    )
 
     print("Now updating security cache.")
     print("Check:")
@@ -208,7 +225,7 @@ def main():
     # Remove a Identity
     # Group SALES should be removed
     push.RemovePermissionIdentity(mysecprovidername, CoveoPermissions.PermissionIdentityExpansion(
-        CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, "SALES"))
+        GROUP, mysecprovidername, "SALES"))
     print("Now updating security cache.")
     print("Check:")
     print(" HR/RD groups: members wimingroup,peteringroup")
