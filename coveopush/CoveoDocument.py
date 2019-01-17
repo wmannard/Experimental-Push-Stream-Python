@@ -164,27 +164,22 @@ class Document:
         """
         ToJson, returns JSON for push.
         Puts all metadata and other fields into a clean JSON object"""
-        self.logger.debug('ToJson')
         # Check if empty
 
+        attributes = [
+            'DocumentId', 'Title', 'ClickableUri',
+            'Data', 'CompressedBinaryData', 'CompressedBinaryDataFileId', 'CompressionType',
+            'Date', 'ModifiedDate',
+            'FileExtension',
+            'ParentId',
+            'Author', 'Permissions'
+        ]
+
         all = dict()
-        if self.Data:
-            all["Data"] = self.Data
-        all["Date"] = self.Date
-        all["DocumentId"] = self.DocumentId
-        all["Title"] = self.Title
-        all["ModifiedDate"] = self.ModifiedDate
-        if self.CompressedBinaryData:
-            all["CompressedBinaryData"] = self.CompressedBinaryData
-        if self.CompressedBinaryDataFileId:
-            all["CompressedBinaryDataFileId"] = self.CompressedBinaryDataFileId
-        all["CompressionType"] = self.CompressionType
-        all["FileExtension"] = self.FileExtension
-        all["ParentId"] = self.ParentId
-        all["ClickableUri"] = self.ClickableUri
-        all["Author"] = self.Author
-        if self.Permissions:
-            all["Permissions"] = self.Permissions
+        for attr in attributes:
+            if self.__dict__[attr]:
+                all[attr] = self.__dict__[attr]
+
         for meta in self.MetaData:
             all[meta] = self.MetaData[meta]
 
