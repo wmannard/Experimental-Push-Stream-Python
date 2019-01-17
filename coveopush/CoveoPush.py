@@ -509,19 +509,20 @@ class Push:
             p_Document.SetCompressedDataFileId(fileId)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddUpdateDocumentRequest(self, p_CoveoDocument: Document, p_OrderingId: int):
+    def AddUpdateDocumentRequest(self, p_CoveoDocument: Document, orderingId: int = None):
         """
         AddUpdateDocumentRequest.
         Sends the document to the Push API, if previously uploaded to s3 the fileId is set
         :arg p_Document: Document
-        :arg p_OrderingId: int
+        :arg orderingId: int (optional)
         """
 
-        self.logger.debug(p_CoveoDocument.DocumentId + ', ' + str(p_OrderingId))
+        self.logger.debug(f'{p_CoveoDocument.DocumentId}, {orderingId}')
         params = {
-            Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId,
-            Constants.Parameters.ORDERING_ID: p_OrderingId
+            Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId
         }
+        if orderingId is not None:
+            params[Constants.Parameters.ORDERING_ID] = orderingId
 
         self.logger.debug(params)
 
@@ -543,20 +544,25 @@ class Push:
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def DeleteDocument(self, p_DocumentId: str, p_OrderingId: int, p_DeleteChildren: bool):
+    def DeleteDocument(self, p_DocumentId: str, orderingId: int = None, deleteChildren: bool = False):
         """
         Deletes the document
         :arg p_DocumentId: CoveoDocument
-        :arg p_OrderingId: int
-        :arg p_DeleteChildren: bool, if children must be deleted
+        :arg orderingId: int
+        :arg deleteChildren: bool, if children must be deleted
         """
 
-        self.logger.debug('DeleteDocument')
         params = {
-            Constants.Parameters.DOCUMENT_ID: p_DocumentId,
-            Constants.Parameters.ORDERING_ID: p_OrderingId,
-            Constants.Parameters.DELETE_CHILDREN: p_DeleteChildren
+            Constants.Parameters.DOCUMENT_ID: p_DocumentId
         }
+
+        if orderingId is not None:
+            params[Constants.Parameters.ORDERING_ID] = orderingId
+
+        if deleteChildren:
+            params[Constants.Parameters.DELETE_CHILDREN] = deleteChildren
+
+        self.logger.debug(params)
 
         # delete it
         r = requests.delete(
@@ -568,26 +574,28 @@ class Push:
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def DeleteOlderThan(self, p_OrderingId: int):
+    def DeleteOlderThan(self, orderingId: int = 0, queueDelay: int = None):
         """
         DeleteOlderThan.
-        All documents with a smaller p_OrderingId will be removed from the index
-        :arg p_OrderingId: int
+        All documents with a smaller orderingId will be removed from the index
+        :arg orderingId: int
         """
 
-        self.logger.debug('DeleteOlderThan')
+        self.logger.debug(f'orderingId: {orderingId}, queueDelay: {queueDelay}')
         # Validate
-        if p_OrderingId <= 0:
-            Error(
-                self, "DeleteOlderThan: p_OrderingId must be a positive 64 bit integer.")
-        if not (self.ProcessingDelayInMinutes >= 0 and self.ProcessingDelayInMinutes <= 1440):
-            Error(
-                self, "DeleteOlderThan: ProcessingDelayInMinutes must be between 0 and 1440.")
+        if orderingId <= 0:
+            Error(self, "DeleteOlderThan: orderingId must be a positive 64 bit integer.")
 
         params = {
-            Constants.Parameters.ORDERING_ID: p_OrderingId,
-            Constants.Parameters.QUEUE_DELAY: self.ProcessingDelayInMinutes
+            Constants.Parameters.ORDERING_ID: orderingId
         }
+
+        if queueDelay is not None:
+            if not (queueDelay >= 0 and queueDelay <= 1440):
+                Error(self, "DeleteOlderThan: queueDelay must be between 0 and 1440.")
+            else:
+                params[Constants.Parameters.QUEUE_DELAY] = queueDelay
+
         r = requests.delete(
             self.GetDeleteOlderThanUrl(),
             headers=self.GetRequestHeaders(),
@@ -603,10 +611,10 @@ class Push:
         Pushes the Document to the Push API
         :arg p_CoveoDocument: Document
         :arg p_UpdateStatus: bool (True), if the source status should be updated
-        :arg p_OrderingId: int, optional
+        :arg orderingId: int, optional
         """
 
-        self.logger.debug('AddSingleDocument')
+        self.logger.info(p_CoveoDocument.DocumentId)
         # Single Call
         # First check
         valid, error = Validate(p_CoveoDocument)
@@ -630,31 +638,27 @@ class Push:
             self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def RemoveSingleDocument(self, p_DocumentId: str, p_UpdateStatus: bool = True, p_OrderingId: int = 0, p_DeleteChildren: bool = False):
+    def RemoveSingleDocument(self, p_DocumentId: str, updateStatus: bool = True, orderingId: int = None, deleteChildren: bool = False):
         """
         RemoveSingleDocument.
         Deletes the CoveoDocument to the Push API
         :arg p_DocumentId: str of the document to delete
-        :arg p_UpdateStatus: bool (True), if the source status should be updated
-        :arg p_OrderingId: int, if not supplied a new one will be created
-        :arg p_DeleteChildren: bool (False), if children must be deleted
+        :arg updateStatus: bool (True), if the source status should be updated
+        :arg orderingId: int, if not supplied a new one will be created
+        :arg deleteChildren: bool (False), if children must be deleted
         """
 
-        self.logger.debug('Removing ' + p_DocumentId)
         # Single Call
 
-        if p_OrderingId == 0:
-            p_OrderingId = self.CreateOrderingId()
-
         # Update Source Status
-        if p_UpdateStatus:
+        if updateStatus:
             self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
 
         # Delete document
-        self.DeleteDocument(p_DocumentId, p_OrderingId, p_DeleteChildren)
+        self.DeleteDocument(p_DocumentId, orderingId, deleteChildren)
 
         # Update Source Status
-        if p_UpdateStatus:
+        if updateStatus:
             self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -665,7 +669,7 @@ class Push:
         :arg p_FileId: File Id retrieved from GetLargeFileContainer call
         """
 
-        self.logger.debug('AddUpdateDocumentsRequest')
+        self.logger.debug(p_FileId)
         params = {
             Constants.Parameters.FILE_ID: p_FileId
         }
@@ -853,6 +857,7 @@ class Push:
         # Delete Older Documents
         if p_DeleteOlder:
             self.DeleteOlderThan(self.StartOrderingId)
+
         self.ToAdd = []
         self.ToDel = []
 
@@ -892,7 +897,7 @@ class Push:
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddPermissionExpansion(self, p_SecurityProviderId: str, p_Identity: PermissionIdentityExpansion, p_Members: [], p_Mappings: [], p_WellKnowns: [], p_OrderingId: int = 0):
+    def AddPermissionExpansion(self, p_SecurityProviderId: str, p_Identity: PermissionIdentityExpansion, p_Members: [], p_Mappings: [], p_WellKnowns: [], orderingId: int = None):
         """
         AddPermissionExpansion.
         Add a single Permission Expansion Call (PermissionIdentityBody)
@@ -901,21 +906,19 @@ class Push:
         :arg p_Members: list of PermissionIdentityExpansion.
         :arg p_Mappings: list of PermissionIdentityExpansion.
         :arg p_WellKnowns: list of PermissionIdentityExpansion.
-        :arg p_OrderingId: orderingId.
+        :arg orderingId: orderingId. (optional)
         """
         self.logger.debug('AddPermissionExpansion')
-
-        if p_OrderingId == 0:
-            p_OrderingId = self.CreateOrderingId()
 
         permissionIdentityBody = PermissionIdentityBody(p_Identity)
         permissionIdentityBody.AddMembers(p_Members)
         permissionIdentityBody.AddMappings(p_Mappings)
         permissionIdentityBody.AddWellKnowns(p_WellKnowns)
 
-        params = {
-            Constants.Parameters.ORDERING_ID: p_OrderingId
-        }
+        params = {}
+
+        if orderingId is not None:
+            params[Constants.Parameters.ORDERING_ID] = orderingId
 
         resourcePathFormat = Constants.PushApiPaths.PROVIDER_PERMISSIONS
         if p_Mappings:
@@ -928,7 +931,9 @@ class Push:
         )
 
         pickled_identity = jsonpickle.encode(permissionIdentityBody, unpicklable=False)
-        self.logger.debug("JSON: "+pickled_identity)
+
+        self.logger.debug(f'JSON: {pickled_identity}')
+
         # Update permission
         r = requests.put(
             resourcePath,
@@ -1076,20 +1081,20 @@ class Push:
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def DeletePermissionsOlderThan(self, p_SecurityProviderId: str, p_OrderingId: int):
+    def DeletePermissionsOlderThan(self, p_SecurityProviderId: str, orderingId: int = 0):
         """
         DeletePermissionOlderThan.
-        Deletes permissions older than p_OrderingId
+        Deletes permissions older than orderingId
         :arg p_SecurityProviderId: Security Provider to use
-        :arg p_OrderingId: int, the OrderingId to use
+        :arg orderingId: int, the OrderingId to use
         """
         self.logger.debug('DeletePermissionsOlderThan')
 
-        if p_OrderingId == 0:
-            p_OrderingId = self.CreateOrderingId()
+        if orderingId <= 0:
+            Error(self, "DeletePermissionsOlderThan: orderingId must be a positive 64 bit integer.")
 
         params = {
-            Constants.Parameters.ORDERING_ID: p_OrderingId
+            Constants.Parameters.ORDERING_ID: orderingId
         }
 
         resourcePathFormat = Constants.PushApiPaths.PROVIDER_PERMISSIONS_DELETE
