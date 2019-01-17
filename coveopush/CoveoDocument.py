@@ -183,7 +183,6 @@ class Document:
         for meta in self.MetaData:
             all[meta] = self.MetaData[meta]
 
-        self.logger.debug(all)
         return all
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

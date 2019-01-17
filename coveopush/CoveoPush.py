@@ -145,7 +145,7 @@ class Push:
 
         self.logger.debug('\n\n')
         self.logger.debug('------------------------------')
-        self.logger.debug('Pushing to source ' + self.SourceId)
+        self.logger.info('Pushing to source ' + self.SourceId)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def SetSizeMaxRequest(self, p_Max: int):
@@ -355,7 +355,7 @@ class Push:
         :arg p_SourceStatus: Constants.SourceStatusType (REBUILD, IDLE)
         """
 
-        self.logger.debug('Changing status to ' + p_SourceStatus.value)
+        self.logger.info('Changing status to ' + p_SourceStatus.value)
         params = {
             Constants.Parameters.STATUS_TYPE: p_SourceStatus.value
         }
@@ -517,10 +517,10 @@ class Push:
         :arg orderingId: int (optional)
         """
 
-        self.logger.debug(f'{p_CoveoDocument.DocumentId}, {orderingId}')
         params = {
             Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId
         }
+
         if orderingId is not None:
             params[Constants.Parameters.ORDERING_ID] = orderingId
 
@@ -531,7 +531,7 @@ class Push:
             params[Constants.Parameters.COMPRESSION_TYPE] = p_CoveoDocument.CompressionType
 
         body = jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)
-        self.logger.debug('body: ' + body)
+        self.logger.debug(body)
 
         # make POST request to change status
         r = requests.put(
