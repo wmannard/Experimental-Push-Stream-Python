@@ -50,15 +50,24 @@ def Validate(obj):
         result = False
     # Validate documentId, should be a valid url
     try:
-        # [JD] -- this will allow 'abc.x' as a DocumentId and that is invalid.
-        # [JD] -- maybe use a RegEx here instead?
-        urlparse(obj.DocumentId)
+        parsed_url = urlparse(obj.DocumentId)
+
+        if not parsed_url.scheme:
+            error.append('DocumentId is not a valid URL format [missing scheme]: ' + obj.DocumentId)
+            result = False
+
+        if not parsed_url.netloc:
+            error.append('DocumentId is not a valid URL format [missing path]: ' + obj.DocumentId)
+            result = False
+
     except:
-        error.append('DocumentId is not a valid URL')
+        error.append('DocumentId is not a valid URL format:' + obj.DocumentId)
         result = False
+
     if obj.Title == '':
         error.append('Title is empty')
         result = False
+
     return result, ' | '.join(error)
 
 
