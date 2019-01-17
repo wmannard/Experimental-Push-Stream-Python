@@ -42,7 +42,6 @@ def isBase64(s):
 
 
 class LargeFileContainer:
-    # [JD] Moved from CoveoConstants.py
     """Class to store the properties returned by LargeFile Container call """
     # The secure URI used to upload the item data into an Amazon S3 file.
     UploadUri = ''
@@ -202,8 +201,6 @@ class Push:
         }
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # [JD]  Obsolete. Could be replace by self.GetStatusUrl(Constants.PushApiPaths.SOURCE_ACTIVITY_STATUS)
-
     def GetStatusUrl(self):
         """
         GetStatusUrl.
@@ -230,7 +227,6 @@ class Push:
         return ordering_id
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.DOCUMENT_GET_CONTAINER)
     def GetLargeFileContainerUrl(self):
         """
         GetLargeFileContainerUrl.
@@ -245,7 +241,6 @@ class Push:
         return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS)
     def GetUpdateDocumentUrl(self):
         """
         GetUpdateDocumentUrl.
@@ -276,7 +271,6 @@ class Push:
         return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH)
     def GetDeleteDocumentUrl(self):
         """
         GetDeleteDocumentUrl.
@@ -292,7 +286,6 @@ class Push:
         return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_BATCH)
     def GetUpdateDocumentsUrl(self):
         """
         GetUpdateDocumentsUrl.
@@ -308,7 +301,6 @@ class Push:
         return url
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # [JD]  Obsolete. Could be replace by self.GetUrl(Constants.PushApiPaths.SOURCE_DOCUMENTS_DELETE)
     def GetDeleteOlderThanUrl(self):
         """
         GetDeleteOlderThanUrl.
@@ -541,7 +533,6 @@ class Push:
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # [JD] This function doesn't add a request to a delete array, it does the call to delete. I am renaming to DeleteDocument...
     def DeleteDocument(self, p_DocumentId: str, p_OrderingId: int, p_DeleteChildren: bool):
         """
         Deletes the document
