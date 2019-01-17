@@ -203,8 +203,8 @@ class Document:
         :arg p_Date: datetime, set the date
         """
 
-        self.logger.debug('SetDate')
-        # Check if string
+        self.logger.debug(p_Date)
+        # if string, parse it into a datetime
         if (type(p_Date) is str):
             p_Date = datetime.fromisoformat(p_Date)
 
@@ -222,28 +222,16 @@ class Document:
         :arg p_Date: datetime, set the ModifiedDate date
         """
 
-        self.logger.debug('SetModifiedDate')
-        # Check if empty
-        if (p_Date == ''):
-            Error(self, "SetModifiedDate: value not set")
+        self.logger.debug(p_Date)
+        # if string, parse it into a datetime
+        if (type(p_Date) is str):
+            p_Date = datetime.fromisoformat(p_Date)
+
+        # Check we have a datetime object
+        if (type(p_Date) is not datetime):
+            Error(self, "SetModifiedDate: invalid datetime object")
 
         self.ModifiedDate = p_Date.isoformat()
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def SetDateWithString(self, p_Date: str, p_Format: str):
-        """
-        SetDateWithString.
-        Sets the Date property, based on the p_Format ("%Y-%m-%d") supplied.
-        :arg p_Date: str, set the date
-        :arg p_Format: str, set the format to use
-        """
-
-        self.logger.debug('SetDateWithString')
-        # Check if empty
-        if (p_Date == ''):
-            Error(self, "SetDateWithString: value not set")
-
-        self.Date = datetime.strptime(p_Date, p_Format).isoformat()
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def SetCompressedEncodedData(self, p_CompressedEncodedData: str, p_CompressionType: CoveoConstants.Constants.CompressionType = CoveoConstants.Constants.CompressionType.ZLIB):
@@ -281,8 +269,7 @@ class Document:
         if (p_Content == ''):
             Error(self, "SetContentAndCompress: value not set")
 
-        compresseddata = zlib.compress(
-            p_Content.encode('utf8'), zlib.Z_BEST_COMPRESSION)
+        compresseddata = zlib.compress(p_Content.encode('utf8'), zlib.Z_BEST_COMPRESSION)
         encodeddata = base64.b64encode(compresseddata).decode('ascii')
 
         self.CompressedBinaryData = encodeddata
@@ -297,7 +284,7 @@ class Document:
         :arg p_FilePath: str, valid file
         """
 
-        self.logger.debug('GetFileAndCompress')
+        self.logger.debug(p_FilePath)
         # Check if empty
         if (p_FilePath == ''):
             Error(self, "GetFileAndCompress: value not set")
@@ -308,8 +295,7 @@ class Document:
 
         with open(p_FilePath, mode='rb') as file:  # b is important -> binary
             fileContent = file.read()
-            compresseddata = zlib.compress(
-                fileContent, zlib.Z_BEST_COMPRESSION)
+            compresseddata = zlib.compress(fileContent, zlib.Z_BEST_COMPRESSION)
             encodeddata = base64.b64encode(compresseddata).decode('ascii')
 
         # Get the extension
@@ -327,7 +313,7 @@ class Document:
         :arg p_CompressedDataFileId: str, the fileId retrieved by the GetLargeFileContainer call
         """
 
-        self.logger.debug('SetCompressedDataFileId')
+        self.logger.debug(p_CompressedDataFileId)
         # Check if empty
         if (p_CompressedDataFileId == ''):
             Error(self, "SetCompressedDataFileId: value not set")
@@ -345,15 +331,14 @@ class Document:
         :arg p_Value: object, the value or object to set (str or list)
         """
 
-        self.logger.debug('AddMetadata')
+        self.logger.debug(p_Key + ": " + str(p_Value))
         # Check if empty
         if (p_Key == ''):
             Error(self, "AddMetadata: key not set")
 
         # Check if in reserved keys
         if (p_Key.lower() in [key.lower() for key in CoveoConstants.Constants.s_DocumentReservedKeys]):
-            Error(self, "AddMetadata: "+p_Key +
-                  " is a reserved field and cannot be set as metadata.")
+            Error(self, "AddMetadata: " + p_Key + " is a reserved field and cannot be set as metadata.")
 
         # Check if empty
         if (p_Value == '' or p_Value == None):
@@ -378,8 +363,7 @@ class Document:
         if (p_DeniedPermissions == None):
             Error(self, "SetAllowedAndDeniedPermissions: DeniedPermissions not set")
 
-        simplePermissionLevel = CoveoPermissions.DocumentPermissionLevel(
-            'Level1')
+        simplePermissionLevel = CoveoPermissions.DocumentPermissionLevel('Level1')
 
         simplePermissionSet = CoveoPermissions.DocumentPermissionSet('Set1')
         simplePermissionSet.AddAllowedPermissions(p_AllowedPermissions)
