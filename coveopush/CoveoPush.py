@@ -597,13 +597,13 @@ class Push:
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddSingleDocument(self, p_CoveoDocument: Document, p_UpdateStatus: bool = True, p_OrderingId: int = 0):
+    def AddSingleDocument(self, p_CoveoDocument: Document, updateStatus: bool = True, orderingId: int = None):
         """
         AddSingleDocument.
         Pushes the Document to the Push API
         :arg p_CoveoDocument: Document
         :arg p_UpdateStatus: bool (True), if the source status should be updated
-        :arg p_OrderingId: int, if not supplied a new one will be created
+        :arg p_OrderingId: int, optional
         """
 
         self.logger.debug('AddSingleDocument')
@@ -613,23 +613,20 @@ class Push:
         if not valid:
             Error(self, "AddSingleDocument: "+error)
 
-        if p_OrderingId == 0:
-            p_OrderingId = self.CreateOrderingId()
-
         # Update Source Status
-        if p_UpdateStatus:
+        if updateStatus:
             self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
 
         # Push Document
         try:
             if (p_CoveoDocument.CompressedBinaryData != '' or p_CoveoDocument.Data != ''):
                 self.UploadDocumentIfTooLarge(p_CoveoDocument)
-            self.AddUpdateDocumentRequest(p_CoveoDocument, p_OrderingId)
+            self.AddUpdateDocumentRequest(p_CoveoDocument, orderingId)
         finally:
             p_CoveoDocument.Content = ''
 
         # Update Source Status
-        if p_UpdateStatus:
+        if updateStatus:
             self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
