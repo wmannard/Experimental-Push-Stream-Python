@@ -3,18 +3,6 @@
 # Push Single document with Data property
 # -------------------------------------------------------------------------------------
 
-import json
-import re
-import csv
-import urllib
-import sys
-import time
-import zlib
-import base64
-import requests
-import datetime
-# Needed for the import of the csv
-
 from coveopush import CoveoPush
 from coveopush import Document
 from coveopush import CoveoPermissions
