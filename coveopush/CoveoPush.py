@@ -509,7 +509,6 @@ class Push:
         :arg p_OrderingId: int
         """
 
-        self.logger.debug(p_CoveoDocument.DocumentId + ', ' + p_OrderingId)
         self.logger.debug(p_CoveoDocument.DocumentId + ', ' + str(p_OrderingId))
         params = {
             Constants.Parameters.DOCUMENT_ID: p_CoveoDocument.DocumentId,
