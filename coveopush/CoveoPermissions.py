@@ -95,8 +95,8 @@ class PermissionIdentityExpansion:
         self.provider = p_SecurityProvider
         self.type = p_IdentityType.value
         if not isinstance(p_AdditionalInfo, dict):
-            raise Exception(
-                "PermissionIdentityExpansion: p_AdditionalInfo is not a dictionary")
+            raise Exception("PermissionIdentityExpansion: p_AdditionalInfo is not a dictionary")
+
         self.additionalInfo = p_AdditionalInfo
 
 
@@ -127,32 +127,6 @@ class DocumentPermissionSet:
         self.DeniedPermissions = []
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddAllowedPermission(self, p_PermissionIdentity: PermissionIdentity):
-        """
-        AddAllowedPermission.
-        Add ONE PermissionIdentity to the AllowedPermissions
-        :arg p_PermissionIdentity: PermissionIdentity.
-        """
-        # Check if correct
-        if not (type(p_PermissionIdentity) is PermissionIdentity):
-            Error(self, "AddAllowedPermission: value is not of type PermissionIdentity")
-
-        self.AllowedPermissions.append(p_PermissionIdentity)
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddDeniedPermission(self, p_PermissionIdentity: PermissionIdentity):
-        """
-        AddDeniedPermission.
-        Add ONE PermissionIdentity to the DeniedPermissions
-        :arg p_PermissionIdentity: PermissionIdentity.
-        """
-        # Check if correct
-        if not (type(p_PermissionIdentity) is PermissionIdentity):
-            Error(self, "AddDeniedPermission: value is not of type PermissionIdentity")
-
-        self.DeniedPermissions.append(p_PermissionIdentity)
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddAllowedPermissions(self, p_PermissionIdentities: []):
         """
         AddAllowedPermissions.
@@ -162,6 +136,10 @@ class DocumentPermissionSet:
         # Check if correct
         if not p_PermissionIdentities:
             return
+
+        if not isinstance(p_PermissionIdentities, (list,)):
+            p_PermissionIdentities = [p_PermissionIdentities]
+
         if not isinstance(p_PermissionIdentities, (list,)):
             Error(self, "AddAllowedPermissions: value is not a list")
 
@@ -180,6 +158,10 @@ class DocumentPermissionSet:
         # Check if correct
         if not p_PermissionIdentities:
             return
+
+        if not isinstance(p_PermissionIdentities, (list,)):
+            p_PermissionIdentities = [p_PermissionIdentities]
+
         if not isinstance(p_PermissionIdentities, (list,)):
             Error(self, "AddDeniedPermissions: value is not a list")
 
@@ -260,8 +242,8 @@ class PermissionIdentityBody:
         :arg p_Identity: Identity name.
         """
         if not (type(p_Identity) is PermissionIdentityExpansion):
-            Error(
-                self, "PermissionIdentityBody constructor: value is not of type PermissionIdentityExpansion")
+            Error(self, "PermissionIdentityBody constructor: value is not of type PermissionIdentityExpansion")
+
         self.identity = p_Identity
         self.mappings = []
         self.members = []
@@ -285,8 +267,7 @@ class PermissionIdentityBody:
             Error(self, "Adding to " + attr + ": value is not a list")
 
         if not (type(p_PermissionIdentities[0]) is PermissionIdentityExpansion):
-            Error(self, "Adding to " + attr +
-                  ": value is not of type PermissionIdentityExpansion")
+            Error(self, "Adding to " + attr + ": value is not of type PermissionIdentityExpansion")
 
         self.__dict__[attr].extend(p_PermissionIdentities)
 
@@ -341,8 +322,7 @@ class BatchPermissions:
             Error(self, "Adding to " + attr + ": value is not a list")
 
         if not (type(p_PermissionIdentityBodies[0]) is PermissionIdentityBody):
-            Error(self, "Adding to " + attr +
-                  ": value is not of type PermissionIdentity")
+            Error(self, "Adding to " + attr + ": value is not of type PermissionIdentity")
 
         self.__dict__[attr].extend(p_PermissionIdentityBodies)
 

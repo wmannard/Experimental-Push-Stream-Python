@@ -238,17 +238,17 @@ permLevel2Set.AllowAnonymous = False
 # Set the allowed permissions for the first set of the first level
 for user in users:
   # Create the permission identity
-  permLevel1Set1.AddAllowedPermission(CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user))
+  permLevel1Set1.AddAllowedPermissions(CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user))
 
 #Set the denied permissions for the second set of the first level
 for user in deniedusers:
   # Create the permission identity
-  permLevel1Set2.AddDeniedPermission(CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user))
+  permLevel1Set2.AddDeniedPermissions(CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, mysecprovidername, user))
 
 # Set the allowed permissions for the first set of the second level
 for group in groups:
  # Create the permission identity
-  permLevel2Set.AddAllowedPermission(CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, group))
+  permLevel2Set.AddAllowedPermissions(CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.Group, mysecprovidername, group))
 
 # Set the permission sets to the appropriate level
 permLevel1.AddPermissionSet(permLevel1Set1)
