@@ -3,16 +3,7 @@
 # Push single document with complicated security
 # -------------------------------------------------------------------------------------
 
-import json
-import re
-import csv
-import urllib
-import sys
-import time
-import zlib
-import base64
-import requests
-import datetime
+import os
 
 from coveopush import CoveoPush
 from coveopush import Document
@@ -21,9 +12,9 @@ from coveopush import CoveoConstants
 
 
 def main():
-    sourceId = '--Enter your source id--'
-    orgId = '--Enter your org id--'
-    apiKey = '--Enter your API key--'
+    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
 
     # Shortcut for constants
     GROUP = CoveoConstants.Constants.PermissionIdentityType.Group
@@ -154,7 +145,7 @@ def main():
         # Create a permission Identity
         mappings = []
         mappings.append(
-            CoveoPermissions.PermissionIdentityExpansion(USER, "Email Security Provider", user+"@coveo.com")
+            CoveoPermissions.PermissionIdentityExpansion(USER, "Email Security Provider", user + "@coveo.com")
         )
 
         wellknowns = []

@@ -343,8 +343,15 @@ class Push:
         If not valid an error will be raised.
         :arg p_Response: response from request
         """
-        p_Response.raise_for_status()
         self.logger.debug(p_Response.status_code)
+        if p_Response.status_code == 403:
+            self.logger.error('Check privileges on your Api key.')
+
+        if p_Response.status_code >= 300:
+            self.logger.error(p_Response.text)
+
+        p_Response.raise_for_status()
+
         return p_Response.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
