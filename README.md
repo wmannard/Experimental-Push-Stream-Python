@@ -318,3 +318,4 @@ After the next Security Permission update cycle, the securities will be updated 
 
 ### Authors
 - [Wim Nijmeijer](https://github.com/wnijmeijer)
+- [Jerome Devost](https://github.com/jdevost)
