@@ -3,17 +3,9 @@
 # Push Multiple From CSV using single Push calls (one for each document)
 # -------------------------------------------------------------------------------------
 
-import json
-import re
 import csv
-import urllib
-import sys
-import time
-import zlib
-import base64
-import requests
 import datetime
-# Needed for the import of the csv
+import os
 
 from coveopush import CoveoPush
 from coveopush import Document
@@ -58,15 +50,16 @@ def add_document(post):
 
 def main():
     # setup Push client
-    sourceId = '--Enter your source id--'
-    orgId = '--Enter your org id--'
-    apiKey = '--Enter your API key--'
+    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
     push = CoveoPush.Push(sourceId, orgId, apiKey)
 
     # Get first ordering id
     startOrderingId = push.CreateOrderingId()
 
-    with open('testfiles\\people.csv', 'r') as infile:
+    myfile = os.path.join('testfiles', 'People.csv')
+    with open(myfile, 'r') as infile:
         posts = csv.DictReader(infile, delimiter=';')
        # Loop through each post and add to Coveo
         for row in posts:

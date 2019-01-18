@@ -3,16 +3,7 @@
 # Push Multiple large files using the batch api
 # -------------------------------------------------------------------------------------
 
-import json
-import re
-import csv
-import urllib
-import sys
-import time
-import zlib
-import base64
-import requests
-import datetime
+import os
 
 from coveopush import CoveoPush
 from coveopush import Document
@@ -42,18 +33,20 @@ def createDoc(myfile):
 
 
 def main():
-    sourceId = '--Enter your source id--'
-    orgId = '--Enter your org id--'
-    apiKey = '--Enter your API key--'
+    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
+
     updateSourceStatus = True
     deleteOlder = True
 
     # Setup the push client
     push = CoveoPush.Push(sourceId, orgId, apiKey)
     # Create a batch of documents
-    batch = []
-    batch.append(createDoc('testfiles\\BigExample.pdf'))
-    batch.append(createDoc('testfiles\\BigExample2.pptx'))
+    batch = [
+        createDoc(os.path.join('testfiles', 'BigExample.pdf')),
+        createDoc(os.path.join('testfiles', 'BigExample2.pptx'))
+    ]
 
     # Push the documents
     push.AddDocuments(batch, [], updateSourceStatus, deleteOlder)

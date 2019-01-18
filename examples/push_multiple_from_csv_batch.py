@@ -3,17 +3,9 @@
 # Push Multiple From CSV using BATCH calls
 # -------------------------------------------------------------------------------------
 
-import json
-import re
 import csv
-import urllib
-import sys
-import time
-import zlib
-import base64
-import requests
 import datetime
-# Needed for the import of the csv
+import os
 
 from coveopush import CoveoPush
 from coveopush import Document
@@ -43,13 +35,11 @@ def add_document(post):
     # Set the date
     mydoc.SetDate(datetime.datetime.now())
     mydoc.SetModifiedDate(datetime.datetime.now())
-    mydoc.Title = post['FirstName']+' ' + \
-        post['LastName']+' '+'('+post['JobFunction']+')'
+    mydoc.Title = post['FirstName']+' ' + post['LastName']+' '+'('+post['JobFunction']+')'
 
     # Set permissions
     user_email = "wim@coveo.com"
-    myperm = CoveoPermissions.PermissionIdentity(
-        CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+    myperm = CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], True)
 
     print('\nUser %s for title "%s"' % (user_email, post['FirstName']))
@@ -58,9 +48,10 @@ def add_document(post):
 
 def main():
     # setup Push client
-    sourceId = '--Enter your source id--'
-    orgId = '--Enter your org id--'
-    apiKey = '--Enter your API key--'
+    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
+
     updateSourceStatus = True
     deleteOlder = True
 
@@ -69,7 +60,8 @@ def main():
 
     # Create a batch of documents
     batch = []
-    with open('testfiles\\people.csv', 'r') as infile:
+    myfile = os.path.join('testfiles', 'People.csv')
+    with open(myfile, 'r') as infile:
         posts = csv.DictReader(infile, delimiter=';')
         # loop through each post and add to Coveo
         for row in posts:

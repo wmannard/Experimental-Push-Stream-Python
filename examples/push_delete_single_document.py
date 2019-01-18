@@ -4,6 +4,7 @@
 # -------------------------------------------------------------------------------------
 
 import os
+import sys
 import time
 
 from coveopush import CoveoPush
@@ -41,7 +42,14 @@ def main():
     # Push the document
     push.AddSingleDocument(mydoc)
 
-    time.sleep(100)
+    print('Document pushed. Sleeping for 100 seconds to allow time for processing, before deleting it.')
+    for remaining in range(100, 0, -1):
+        sys.stdout.write("\r")
+        sys.stdout.write("{:2d} seconds remaining. ".format(remaining))
+        sys.stdout.flush()
+        time.sleep(1)
+
+    sys.stdout.write("\rDone! Deleting document now...        \n")
 
     # Remove it
     push.RemoveSingleDocument('https://myreference&id=TESTME')

@@ -3,16 +3,7 @@
 # Push single document using CompressedBinaryData
 # -------------------------------------------------------------------------------------
 
-import json
-import re
-import csv
-import urllib
-import sys
-import time
-import zlib
-import base64
-import requests
-import datetime
+import os
 
 from coveopush import CoveoPush
 from coveopush import Document
@@ -21,9 +12,9 @@ from coveopush import CoveoConstants
 
 
 def main():
-    sourceId = '--Enter your source id--'
-    orgId = '--Enter your org id--'
-    apiKey = '--Enter your API key--'
+    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
 
     # Setup the push client
     push = CoveoPush.Push(sourceId, orgId, apiKey)
@@ -47,8 +38,7 @@ def main():
     # Add a user email to be used for identities
     user_email = "wim@coveo.com"
     # Create a permission identity
-    myperm = CoveoPermissions.PermissionIdentity(
-        CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+    myperm = CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
     # Set the permissions on the document
     allowAnonymous = True
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], allowAnonymous)
