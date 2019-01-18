@@ -25,7 +25,7 @@ def main():
     # Get the file contents and add it to the document
     mydoc.GetFileAndCompress(myfile)
     # Set the metadata
-    mydoc.AddMetadata("connectortype", "CSV")
+    mydoc.AddMetadata("connectortype", "PPTX")
 
     # rssauthors should be set as a multi-value field in your Coveo Cloud organization
     mydoc.AddMetadata("rssauthors", ["Coveo", "R&D"])
