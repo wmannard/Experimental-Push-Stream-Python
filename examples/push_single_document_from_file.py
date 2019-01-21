@@ -1,44 +1,34 @@
 #!/usr/bin/env python
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # Push (small) Single document from a filestore
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 
-import json
-import re
-import csv
-import urllib
-import sys
-import time
-import zlib
-import base64
-import requests
-import datetime
+import os
 
 from coveopush import CoveoPush
 from coveopush import Document
 from coveopush import CoveoPermissions
 from coveopush import CoveoConstants
 
-def main():
-    sourceId = '--Enter your source id--'
-    orgId = '--Enter your org id--'
-    apiKey = '--Enter your API key--'
 
-    #Setup the push client
+def main():
+    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
+
+    # Setup the push client
     push = CoveoPush.Push(sourceId, orgId, apiKey)
 
-    myfile = 'testfiles\\Example.pptx'
+    myfile = os.path.join('testfiles', 'Example.pptx')
     # Create a document
     mydoc = Document('file:///' + myfile)
     # Get the file contents and add it to the document
     mydoc.GetFileAndCompress(myfile)
     # Set the metadata
-    mydoc.AddMetadata("connectortype", "CSV")
-    authors = []
-    authors.append("Coveo")
-    authors.append("R&D")
+    mydoc.AddMetadata("connectortype", "PPTX")
+
     # rssauthors should be set as a multi-value field in your Coveo Cloud organization
-    mydoc.AddMetadata("rssauthors", authors)
+    mydoc.AddMetadata("rssauthors", ["Coveo", "R&D"])
     # Set the title
     mydoc.Title = "THIS IS A TEST"
     # Set permissions
@@ -52,6 +42,6 @@ def main():
     # Push the document
     push.AddSingleDocument(mydoc)
 
-    
+
 if __name__ == '__main__':
     main()

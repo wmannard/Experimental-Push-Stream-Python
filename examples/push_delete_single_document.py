@@ -1,31 +1,22 @@
 #!/usr/bin/env python
-#-------------------------------------------------------------------------------------
-# Delete Single document 
-#-------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
+# Delete Single document
+# -------------------------------------------------------------------------------------
 
-import json
-import re
-import csv
-import urllib
+import os
 import sys
 import time
-import zlib
-import base64
-import requests
-import datetime
-# Needed for the import of the csv
-
 
 from coveopush import CoveoPush
 from coveopush import Document
 from coveopush import CoveoPermissions
-from coveopush import CoveoConstants
+from coveopush.CoveoConstants import Constants
 
 
 def main():
-    sourceId = '--Enter your source id--'
-    orgId = '--Enter your org id--'
-    apiKey = '--Enter your API key--'
+    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
 
     # Setup the push client
     push = CoveoPush.Push(sourceId, orgId, apiKey)
@@ -37,13 +28,13 @@ def main():
     # Set FileExtension
     mydoc.FileExtension = ".html"
     # Add Metadata
-    mydoc.AddMetadata("connectortype", "CSV")
+    mydoc.AddMetadata("connectortype", "HTML")
     # Set the title
     mydoc.Title = "THIS IS A TEST"
     # Set permissions
     user_email = "wim@coveo.com"
     # Create a permission identity
-    myperm = CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+    myperm = CoveoPermissions.PermissionIdentity(Constants.PermissionIdentityType.User, "", user_email)
     # Set the permissions on the document
     allowAnonymous = True
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], allowAnonymous)
@@ -51,10 +42,18 @@ def main():
     # Push the document
     push.AddSingleDocument(mydoc)
 
-    time.sleep(100)
+    print('Document pushed. Sleeping for 100 seconds to allow time for processing, before deleting it.')
+    for remaining in range(100, 0, -1):
+        sys.stdout.write("\r")
+        sys.stdout.write("{:2d} seconds remaining. ".format(remaining))
+        sys.stdout.flush()
+        time.sleep(1)
+
+    sys.stdout.write("\rDone! Deleting document now...        \n")
 
     # Remove it
     push.RemoveSingleDocument('https://myreference&id=TESTME')
-    
+
+
 if __name__ == '__main__':
     main()
