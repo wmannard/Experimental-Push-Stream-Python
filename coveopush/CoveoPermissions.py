@@ -165,7 +165,7 @@ class DocumentPermissionSet:
         if not isinstance(p_PermissionIdentities, (list,)):
             Error(self, "AddDeniedPermissions: value is not a list")
 
-        if not (type(p_PermissionIdentities[0]) is DocumentPermissionSet):
+        if not (type(p_PermissionIdentities[0]) is PermissionIdentity):
             Error(self, "AddDeniedPermissions: value is not of type PermissionIdentity")
 
         self.DeniedPermissions.extend(p_PermissionIdentities)
@@ -332,7 +332,7 @@ class BatchPermissions:
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMappings(self, p_PermissionIdentityBodies: []):
-        self.mappings.extend(p_PermissionIdentityBodies)
+        self.__add('mappings', p_PermissionIdentityBodies)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddDeletes(self, p_PermissionIdentityBodies: []):

@@ -3,17 +3,7 @@
 # Push documents using the Start/End Batch method
 # -------------------------------------------------------------------------------------
 
-import json
-import re
-import csv
-import urllib
-import sys
-import time
-import zlib
-import base64
-import requests
-import datetime
-# Needed for the import of the csv
+import os
 
 from coveopush import CoveoPush
 from coveopush import Document
@@ -36,16 +26,16 @@ def createDoc(myfile, version):
     mydoc.Title = "THIS IS A TEST"
     # Set permissions
     user_email = "wim@coveo.com"
-    myperm = CoveoPermissions.PermissionIdentity(
-        CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
+    myperm = CoveoPermissions.PermissionIdentity(CoveoConstants.Constants.PermissionIdentityType.User, "", user_email)
     mydoc.SetAllowedAndDeniedPermissions([myperm], [], True)
     return mydoc
 
 
 def main():
-    sourceId = '--Enter your source id--'
-    orgId = '--Enter your org id--'
-    apiKey = '--Enter your API key--'
+    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
+
     updateSourceStatus = True
     deleteOlder = True
     # Setup the push client
@@ -56,18 +46,17 @@ def main():
 
     # Set the maximum
     push.SetSizeMaxRequest(150*1024*1024)
-
     # Add the documents, if the buffer is full it will be pushed
-    push.Add(createDoc('testfiles\\Large1.pptx', '1'))
-    push.Add(createDoc('testfiles\\Large2.pptx', '1'))
-    push.Add(createDoc('testfiles\\Large3.pptx', '1'))
-    push.Add(createDoc('testfiles\\Large4.pptx', '1'))
-    push.Add(createDoc('testfiles\\Large5.pptx', '1'))
-    push.Add(createDoc('testfiles\\Large1.pptx', '2'))
-    push.Add(createDoc('testfiles\\Large2.pptx', '2'))
-    push.Add(createDoc('testfiles\\Large3.pptx', '2'))
-    push.Add(createDoc('testfiles\\Large4.pptx', '2'))
-    push.Add(createDoc('testfiles\\Large5.pptx', '2'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large1.pptx'), '1'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large2.pptx'), '1'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large3.pptx'), '1'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large4.pptx'), '1'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large5.pptx'), '1'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large1.pptx'), '2'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large2.pptx'), '2'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large3.pptx'), '2'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large4.pptx'), '2'))
+    push.Add(createDoc(os.path.join('testfiles', 'Large5.pptx'), '2'))
 
     # End the Push
     push.End(updateSourceStatus, deleteOlder)

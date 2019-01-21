@@ -137,7 +137,7 @@ The `updateSourceStatus` option ensures that the source is set to `Rebuild` whil
 You can then start adding documents to your source, using the `Add` command, as such:
 
 ```python
-push.Add(createDoc('testfiles\\Large1.pptx','1'))
+push.Add(createDoc(os.path.join('testfiles','Large1.pptx'), '1'))
 ```
 For the sake of simplicity, a `createDoc` function is assumed to exist. This function returns documents formatted the same way the `mydoc` element was formatted in the single document example.
 
@@ -151,16 +151,16 @@ The following example demonstrates how to do that.
 push = CoveoPush.Push(sourceId, orgId, apiKey)
 push.Start(updateSourceStatus, deleteOlder)
 push.SetSizeMaxRequest(150*1024*1024)
-push.Add(createDoc('testfiles\\Large1.pptx','1'))
-push.Add(createDoc('testfiles\\Large2.pptx','1'))
-push.Add(createDoc('testfiles\\Large3.pptx','1'))
-push.Add(createDoc('testfiles\\Large4.pptx','1'))
-push.Add(createDoc('testfiles\\Large5.pptx','1'))
-push.Add(createDoc('testfiles\\Large1.pptx','2'))
-push.Add(createDoc('testfiles\\Large2.pptx','2'))
-push.Add(createDoc('testfiles\\Large3.pptx','2'))
-push.Add(createDoc('testfiles\\Large4.pptx','2'))
-push.Add(createDoc('testfiles\\Large5.pptx','2'))
+push.Add(createDoc(os.path.join('testfiles','Large1.pptx'), '1'))
+push.Add(createDoc(os.path.join('testfiles','Large2.pptx'), '1'))
+push.Add(createDoc(os.path.join('testfiles','Large3.pptx'), '1'))
+push.Add(createDoc(os.path.join('testfiles','Large4.pptx'), '1'))
+push.Add(createDoc(os.path.join('testfiles','Large5.pptx'), '1'))
+push.Add(createDoc(os.path.join('testfiles','Large1.pptx'), '2'))
+push.Add(createDoc(os.path.join('testfiles','Large2.pptx'), '2'))
+push.Add(createDoc(os.path.join('testfiles','Large3.pptx'), '2'))
+push.Add(createDoc(os.path.join('testfiles','Large4.pptx'), '2'))
+push.Add(createDoc(os.path.join('testfiles','Large5.pptx'), '2'))
 push.End(updateSourceStatus, deleteOlder)
 ```
 
@@ -318,3 +318,4 @@ After the next Security Permission update cycle, the securities will be updated 
 
 ### Authors
 - [Wim Nijmeijer](https://github.com/wnijmeijer)
+- [Jerome Devost](https://github.com/jdevost)
