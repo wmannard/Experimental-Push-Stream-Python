@@ -135,7 +135,7 @@ class Push:
         self.OrganizationId = p_OrganizationId
         self.ApiKey = p_ApiKey
         self.Endpoint = p_Endpoint
-        self.MaxRequestSize = 250*1024*1024
+        self.MaxRequestSize = 255052544
         self.logger = logging.getLogger('CoveoPush')
         self.SetupLogging()
 

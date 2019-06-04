@@ -77,6 +77,10 @@ def Error(log, err):
     raise Exception(err)
 
 # ---------------------------------------------------------------------------------
+def Warning(log, err):
+    log.logger.info(err)
+
+# ---------------------------------------------------------------------------------
 
 
 class BatchDocument:
@@ -347,9 +351,9 @@ class Document:
 
         # Check if empty
         if (p_Value == '' or p_Value == None):
-            Error(self, "AddMetadata: value not set")
-
-        self.MetaData[p_Key.lower()] = p_Value
+            Warning(self, "AddMetadata: value not set")
+        else:
+            self.MetaData[p_Key.lower()] = p_Value
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def SetAllowedAndDeniedPermissions(self, p_AllowedPermissions: [], p_DeniedPermissions: [], p_AllowAnonymous: bool = False):

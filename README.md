@@ -308,6 +308,11 @@ This way, you ensure that the remaining identities are properly sent to the Cove
 
 After the next Security Permission update cycle, the securities will be updated (see [Refresh a Security Identity Provider](https://docs.coveo.com/en/1905/cloud-v2-administrators/security-identities---page#refresh-a-security-identity-provider)).
 
+### Changes
+June 2019:
+- MaxRequestSize adjusted
+- AddMetaData, if value empty only warning, no error
+
 ### Dependencies
 - [Python 3.x](https://www.python.org/downloads/)
 - [Python Requests](http://docs.python-requests.org/en/master/user/install/#install)
