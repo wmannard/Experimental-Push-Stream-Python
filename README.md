@@ -312,6 +312,7 @@ After the next Security Permission update cycle, the securities will be updated 
 June 2019:
 - MaxRequestSize adjusted
 - AddMetaData, if value empty only warning, no error
+- permanentid is now set automatically using a hash on the documentId
 
 ### Dependencies
 - [Python 3.x](https://www.python.org/downloads/)

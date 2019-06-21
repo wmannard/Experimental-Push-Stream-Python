@@ -14,9 +14,16 @@ import re
 import logging
 import zlib
 import os.path
+import hashlib
 from datetime import datetime
 
 # ---------------------------------------------------------------------------------
+
+
+def hash(documentId):
+    hash_object = hashlib.sha256(documentId.encode('utf-8'))
+    hex_dig = hash_object.hexdigest()
+    return hex_dig
 
 
 def isBase64(s):
@@ -41,6 +48,9 @@ def Validate(obj):
     """
     result = True
     error = []
+    if obj.permanentid == '':
+        error.append('permanentid is empty')
+        result = False
     if obj.DocumentId == '':
         error.append('DocumentId is empty')
         result = False
@@ -77,6 +87,8 @@ def Error(log, err):
     raise Exception(err)
 
 # ---------------------------------------------------------------------------------
+
+
 def Warning(log, err):
     log.logger.info(err)
 
@@ -129,6 +141,7 @@ class Document:
     Data = ''
     Date = ''
     DocumentId = ''
+    permanentid = ''
     Title = ''
     ModifiedDate = ''
     CompressedBinaryData = ''
@@ -148,6 +161,7 @@ class Document:
         :arg p_DocumentId: Document Id, valid URL
         """
         self.DocumentId = p_DocumentId
+        self.permanentid = hash(p_DocumentId)
         self.Permissions = []
         self.MetaData = {}
         self.Data = ''
@@ -171,7 +185,7 @@ class Document:
         # Check if empty
 
         attributes = [
-            'DocumentId', 'Title', 'ClickableUri',
+            'DocumentId', 'permanentid', 'Title', 'ClickableUri',
             'Data', 'CompressedBinaryData', 'CompressedBinaryDataFileId', 'CompressionType',
             'Date', 'ModifiedDate',
             'FileExtension',
