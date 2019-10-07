@@ -354,7 +354,7 @@ class Document:
         :arg p_Value: object, the value or object to set (str or list)
         """
 
-        self.logger.debug(p_Key + ": " + str(p_Value).encode('utf-8', errors='replace'))
+        self.logger.debug(p_Key + ": " + str(p_Value).encode('utf-8', errors='replace').decode())
         # Check if empty
         if (p_Key == ''):
             Error(self, "AddMetadata: key not set")
