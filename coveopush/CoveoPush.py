@@ -741,7 +741,7 @@ class Push:
                 currentBatchToDelete = []
                 totalSize = documentSize
 
-            if (document is DocumentToDelete):
+            if (type(document) is DocumentToDelete):
                 currentBatchToDelete.append(document.ToJson())
             else:
                 # Validate each document
@@ -839,7 +839,7 @@ class Push:
             self.ToDel = []
             self.totalSize = documentSize
 
-        if (p_CoveoDocument is DocumentToDelete):
+        if (type(p_CoveoDocument) is DocumentToDelete):
             self.ToDel.append(p_CoveoDocument.ToJson())
         else:
             # Validate each document
