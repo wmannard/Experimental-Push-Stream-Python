@@ -74,9 +74,9 @@ def Validate(obj):
         error.append('DocumentId is not a valid URL format:' + obj.DocumentId)
         result = False
 
-    if obj.Title == '':
-        error.append('Title is empty')
-        result = False
+    # if obj.Title == '':
+    #    error.append('Title is empty')
+    #    result = False
 
     return result, ' | '.join(error)
 
