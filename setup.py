@@ -7,6 +7,6 @@ setup(
     author='Wim Nijmeijer',
     author_email='wnijmeijer@coveo.com',
     packages=['coveopush'],
-    version='0.1',
+    version='0.2',
     description='CoveoPush client',
 )
