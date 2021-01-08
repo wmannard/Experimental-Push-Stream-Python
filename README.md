@@ -139,6 +139,7 @@ You can then start adding documents to your source, using the `Add` command, as 
 ```python
 push.Add(createDoc(os.path.join('testfiles','Large1.pptx'), '1'))
 ```
+
 For the sake of simplicity, a `createDoc` function is assumed to exist. This function returns documents formatted the same way the `mydoc` element was formatted in the single document example.
 
 The `Add` command checks if the total size of the documents for the current batch does not exceed the maximum size. When it does, it initiates a file upload to Amazon S3, and then pushes this data to Coveo Cloud through the Push API.
@@ -309,19 +310,24 @@ This way, you ensure that the remaining identities are properly sent to the Cove
 After the next Security Permission update cycle, the securities will be updated (see [Refresh a Security Identity Provider](https://docs.coveo.com/en/1905/cloud-v2-administrators/security-identities---page#refresh-a-security-identity-provider)).
 
 ### Changes
+
 June 2019:
+
 - MaxRequestSize adjusted
 - AddMetaData, if value empty only warning, no error
 - permanentid is now set automatically using a hash on the documentId
 
 ### Dependencies
+
 - [Python 3.x](https://www.python.org/downloads/)
 - [Python Requests](http://docs.python-requests.org/en/master/user/install/#install)
 - [JSONPickle](https://jsonpickle.github.io/#download-install)
 
 ### References
+
 - [Coveo Push API](https://docs.coveo.com/en/68/cloud-v2-developers/push-api)
 
 ### Authors
+
 - [Wim Nijmeijer](https://github.com/wnijmeijer)
 - [Jerome Devost](https://github.com/jdevost)
