@@ -73,6 +73,12 @@ class Constants:
         GZIP = "GZIP"
         LZMA = "LZMA"
         ZLIB = "ZLIB"
+    
+    # ---------------------------------------------------------------------------------
+    class Mode(Enum):
+        Push = "PUSH"
+        Stream = "STREAM"
+        UpdateStream = "UPDATESTREAM"
 
     # ---------------------------------------------------------------------------------
     class Retry:
@@ -118,6 +124,10 @@ class Constants:
     class PushApiPaths:
         SOURCE_ACTIVITY_STATUS = "{endpoint}/organizations/{org_id}/sources/{src_id}/status"
         SOURCE_DOCUMENTS = "{endpoint}/organizations/{org_id}/sources/{src_id}/documents"
+        SOURCE_STREAM_OPEN = "{endpoint}/organizations/{org_id}/sources/{src_id}/stream/open"
+        SOURCE_STREAM_CLOSE = "{endpoint}/organizations/{org_id}/sources/{src_id}/stream/{stream_id}/close"
+        SOURCE_STREAM_UPDATE = "{endpoint}/organizations/{org_id}/sources/{src_id}/stream/update"
+        SOURCE_STREAM_CHUNK = "{endpoint}/organizations/{org_id}/sources/{src_id}/stream/{stream_id}/chunk"
         SOURCE_DOCUMENTS_BATCH = "{endpoint}/organizations/{org_id}/sources/{src_id}/documents/batch"
         SOURCE_DOCUMENTS_DELETE = "{endpoint}/organizations/{org_id}/sources/{src_id}/documents/olderthan"
         DOCUMENT_GET_CONTAINER = "{endpoint}/organizations/{org_id}/files"

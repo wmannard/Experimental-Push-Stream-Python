@@ -1,4 +1,4 @@
-# Coveo Push API SDK for Python
+# Coveo Push/Stream API SDK for Python
 
 The Coveo Push API SDK for Python is meant to help you use the [Coveo Push API](https://docs.coveo.com/en/68/cloud-v2-developers/push-api) when coding in Python.
 
@@ -7,6 +7,7 @@ This SDK includes the following features:
 - Document validation before they are pushed to the plaform
 - Source update status before and after a document update
 - Automatic push of large files to the platform through an Amazon S3 container
+- Upload Stream data when using a Catalog source
 
 For code examples on how to use the SDK, see the `examples` section.
 
@@ -165,6 +166,31 @@ push.Add(createDoc(os.path.join('testfiles','Large5.pptx'), '2'))
 push.End(updateSourceStatus, deleteOlder)
 ```
 
+Unless you are only sending one document, you should always be sending your documents in batches.
+
+## Pushing Catalog data
+
+When you want to push Catalog data, you must use a different approach when initializing the push module.
+
+The Catalog Data can be pushed in two ways:
+* The Initial Catalog (the full catalog), all old data will be wiped
+* A partial Catalog (only a few records)
+
+### Pushing Initial catalog
+Create your push instance as:
+```python
+push = CoveoPush.Push(sourceId, orgId, apiKey, p_Mode=CoveoConstants.Constants.Mode.Stream)
+```
+The `p_Mode` will set the proper Streaming mode. This will ensure that the SDK will use the `/stream/open` and `/stream/close` calls.
+
+### Pushing Partial catalog
+Create your push instance as:
+```python
+push = CoveoPush.Push(sourceId, orgId, apiKey, p_Mode=CoveoConstants.Constants.Mode.UpdateStream)
+```
+The `p_Mode` will set the proper Streaming mode. This will ensure that the SDK will use the `/stream/update` calls.
+
+
 ## Adding Securities to Your Documents
 
 In Coveo, you can add securities to documents, so only allowed users or groups can view the document. This SDK allows you to add security provider information with your documents while pushing them. To learn how to format your permissions, see [Push API Tutorial 2 - Managing Secured Content](https://docs.coveo.com/en/98/cloud-v2-developers/push-api-tutorial-2---managing-secured-content).
@@ -310,6 +336,8 @@ This way, you ensure that the remaining identities are properly sent to the Cove
 After the next Security Permission update cycle, the securities will be updated (see [Refresh a Security Identity Provider](https://docs.coveo.com/en/1905/cloud-v2-administrators/security-identities---page#refresh-a-security-identity-provider)).
 
 ### Changes
+Juli 2021:
+- Support for Catalog stream
 
 June 2019:
 

@@ -57,6 +57,27 @@ class LargeFileContainer:
         self.FileId = p_JSON['fileId']
 
 
+class StreamFileContainer:
+    """Class to store the properties returned by Open Stream call """
+    # The secure URI used to upload the item data into an Amazon S3 file.
+    UploadUri = ''
+
+    # The file identifier used to link the uploaded data to the pushed item.
+    # This value needs to be set in the item 'CompressedBinaryDataFileId' metadata.
+    FileId = ''
+
+    # The Stream identifier used to link the uploaded data to the pushed item.
+    # This value needs to be set in the close stream call.
+    StreamId = ''
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Default constructor used by the deserialization.
+    def __init__(self, p_JSON):
+        self.UploadUri = p_JSON['uploadUri']
+        self.FileId = p_JSON['fileId']
+        self.StreamId = p_JSON['streamId']
+
+
 class Push:
     """
     class Push.
@@ -112,6 +133,7 @@ class Push:
     SourceId = ''
     OrganizationId = ''
     ApiKey = ''
+    Mode = Constants.Mode.Push
     PushApiEndpoint = Constants.PushApiEndpoint
     ProcessingDelayInMinutes = 0
     StartOrderingId = 0
@@ -120,25 +142,28 @@ class Push:
     ToDel = []
     BatchPermissions = []
     MaxRequestSize = 0
+    currentStream = None
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Default constructor used by the deserialization.
-    def __init__(self, p_SourceId: str, p_OrganizationId: str, p_ApiKey: str, p_Endpoint: Constants.PushApiEndpoint = Constants.PushApiEndpoint.PROD_PUSH_API_URL):
+    def __init__(self, p_SourceId: str, p_OrganizationId: str, p_ApiKey: str, p_Endpoint: Constants.PushApiEndpoint = Constants.PushApiEndpoint.PROD_PUSH_API_URL, p_Mode: Constants.Mode = Constants.Mode.Push):
         """
         Push Constructor.
         :arg p_SourceId: Source Id to use
         :arg p_OrganizationId: Organization Id to use
         :arg p_ApiKey: API Key to use
         :arg p_Endpoint: Constants.PushApiEndpoint
+        :arg p_Mode: Constants.Mode (Push), if you are uploading a catalog stream, use Stream
+               When you just want o update your stream: use UpdateStream
         """
         self.SourceId = p_SourceId
         self.OrganizationId = p_OrganizationId
         self.ApiKey = p_ApiKey
         self.Endpoint = p_Endpoint
         self.MaxRequestSize = 255052544
+        self.Mode = p_Mode
         self.logger = logging.getLogger('CoveoPush')
         self.SetupLogging()
-
         # validate Api Key
         if not re.match(r'^\w{10}-\w{4}-\w{4}-\w{4}-\w{12}$', p_ApiKey):
             self.logger.error('Invalid Api Key format')
@@ -245,6 +270,68 @@ class Push:
         url = Constants.PushApiPaths.DOCUMENT_GET_CONTAINER.format(
             endpoint=self.Endpoint,
             org_id=self.OrganizationId
+        )
+        self.logger.debug(url)
+        return url
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def GetOpenStreamUrl(self):
+        """
+        GetOpenStreamUrl.
+        Get the URL for the Open Stream call.
+        """
+
+        url = Constants.PushApiPaths.SOURCE_STREAM_OPEN.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            src_id=self.SourceId
+        )
+        self.logger.debug(url)
+        return url
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def GetCloseStreamUrl(self, p_streamId:str):
+        """
+        GetCloseStreamUrl.
+        Get the URL for the Close Stream call.
+        """
+
+        url = Constants.PushApiPaths.SOURCE_STREAM_CLOSE.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            src_id=self.SourceId,
+            stream_id= p_streamId
+        )
+        self.logger.debug(url)
+        return url
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def GetChunkStreamUrl(self, p_streamId:str):
+        """
+        GetChunkStreamUrl.
+        Get the URL for the Close Stream call.
+        """
+
+        url = Constants.PushApiPaths.SOURCE_STREAM_CHUNK.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            src_id=self.SourceId,
+            stream_id= p_streamId
+        )
+        self.logger.debug(url)
+        return url
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def GetUpdateStreamUrl(self):
+        """
+        GetUpdateStreamUrl.
+        Get the URL for the Update Stream call.
+        """
+
+        url = Constants.PushApiPaths.SOURCE_STREAM_UPDATE.format(
+            endpoint=self.Endpoint,
+            org_id=self.OrganizationId,
+            src_id=self.SourceId
         )
         self.logger.debug(url)
         return url
@@ -393,6 +480,45 @@ class Push:
 
         results = LargeFileContainer(json.loads(r.text))
         return results
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def GetStreamFileContainer(self):
+        """
+        GetStreamFileContainer.
+        Get the S3 Stream Container information.
+        returns: StreamFileContainer Class
+        """
+
+        self.logger.debug(self.GetOpenStreamUrl())
+        r = requests.post(
+            self.GetOpenStreamUrl(),
+            headers=self.GetRequestHeaders()
+        )
+        self.CheckReturnCode(r)
+
+        self.logger.debug(r.text)
+        results = StreamFileContainer(json.loads(r.text))
+        return results
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def GetStreamChunkFileContainer(self, p_streamId:str):
+        """
+        GetStreamChunkFileContainer.
+        Get the S3 Stream Container information.
+        returns: LargeFileContainer Class
+        """
+
+        self.logger.debug(self.GetChunkStreamUrl(p_streamId))
+        r = requests.post(
+            self.GetChunkStreamUrl(p_streamId),
+            headers=self.GetRequestHeaders()
+        )
+        self.CheckReturnCode(r)
+
+        self.logger.debug(r.text)
+        results = LargeFileContainer(json.loads(r.text))
+        return results
+
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def UploadDocument(self, p_UploadUri: str, p_CompressedFile: str):
@@ -691,6 +817,27 @@ class Push:
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def AddUpdateStreamRequest(self, p_FileId: str):
+        """
+        AddUpdateStreamRequest.
+        Sends the documents to the Push/Stream API, if previously uploaded to s3 the fileId is set
+        :arg p_FileId: File Id retrieved from GetLargeFileContainer call
+        """
+
+        self.logger.debug(p_FileId)
+        params = {
+            Constants.Parameters.FILE_ID: p_FileId
+        }
+        # make POST request to change status
+        r = requests.put(
+            self.GetUpdateStreamUrl(),
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
+        self.CheckReturnCode(r)
+        return r.status_code
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def UploadBatch(self, p_ToAdd: [], p_ToDelete: []):
         """
         UploadBatch.
@@ -703,12 +850,30 @@ class Push:
         if not p_ToAdd and not p_ToDelete:
             Error(self, "UploadBatch: p_ToAdd and p_ToDelete are empty")
 
-        container = self.GetLargeFileContainer()
-        if not container:
-            Error(self, "UploadBatch: S3 container is null")
+        if self.Mode == Constants.Mode.Push:
+            container = self.GetLargeFileContainer()
+            if not container:
+                Error(self, "UploadBatch: S3 container is null")
 
-        self.UploadDocuments(container.UploadUri, p_ToAdd, p_ToDelete)
-        self.AddUpdateDocumentsRequest(container.FileId)
+            self.UploadDocuments(container.UploadUri, p_ToAdd, p_ToDelete)
+            self.AddUpdateDocumentsRequest(container.FileId)
+
+        if self.Mode == Constants.Mode.Stream:
+            self.UploadDocuments(self.currentStream.UploadUri, p_ToAdd, p_ToDelete)
+            # get a new container for the next batch?
+            container = self.GetStreamChunkFileContainer(self.currentStream.StreamId)
+            self.currentStream.UploadUri = container.UploadUri
+            self.currentStream.FileId = container.FileId
+            if not container:
+                Error(self, "UploadBatch: S3 container is null")
+
+        if self.Mode == Constants.Mode.UpdateStream:
+            container = self.GetLargeFileContainer()
+
+            if not container:
+                Error(self, "UploadBatch: S3 container is null")
+            self.UploadDocuments(container.UploadUri, p_ToAdd, p_ToDelete)
+            self.AddUpdateStreamRequest(container.FileId)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def ProcessAndUploadBatch(self, p_Documents: []):
@@ -753,6 +918,9 @@ class Push:
 
         self.UploadBatch(currentBatchToAddUpdate, currentBatchToDelete)
 
+        # In the case of a stream, close the stream
+
+
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddDocuments(self, p_CoveoDocumentsToAdd: [], p_CoveoDocumentsToDelete: [], p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
         """
@@ -776,6 +944,21 @@ class Push:
         if p_UpdateStatus:
             self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
 
+        # Check mode
+        if self.Mode == Constants.Mode.Stream or self.Mode == Constants.Mode.UpdateStream:
+            self.logger.debug('Stream MODE for Catalog Sources')
+
+            if self.Mode == Constants.Mode.Stream:
+                # Call the Open Stream, in the case of an Stream
+                self.currentStream = self.GetStreamFileContainer()
+                if not self.currentStream:
+                    Error(self, "StreamFileContainer: S3 container is null")
+
+            if self.Mode == Constants.Mode.UpdateStream:
+                self.currentStream = self.GetLargeFileContainer()
+                if not self.currentStream:
+                    Error(self, "GetLargeFileContainerUrl: S3 container is null")
+
         # Push the Documents
         if p_CoveoDocumentsToAdd:
             allDocuments = p_CoveoDocumentsToAdd
@@ -785,13 +968,24 @@ class Push:
 
         self.ProcessAndUploadBatch(allDocuments)
 
+        # Close the stream
+        if self.Mode==Constants.Mode.Stream:
+            self.logger.debug(self.GetCloseStreamUrl(self.currentStream.StreamId))
+            r = requests.post(
+                self.GetCloseStreamUrl(self.currentStream.StreamId),
+                headers=self.GetRequestHeaders()
+            )
+            self.CheckReturnCode(r)
+
         # Delete Older Documents
-        if p_DeleteOlder:
+        if p_DeleteOlder and self.Mode==Constants.Mode.Push:
             self.DeleteOlderThan(StartOrderingId)
 
         # Update Source Status
         if p_UpdateStatus:
             self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
+
+    
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def Start(self, p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
@@ -808,8 +1002,25 @@ class Push:
         self.StartOrderingId = self.CreateOrderingId()
 
         # Update Source Status
-        if p_UpdateStatus:
+        if p_UpdateStatus and self.Mode==Constants.Mode.Push:
             self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
+        
+        # Check mode
+        if self.Mode == Constants.Mode.Stream or self.Mode == Constants.Mode.UpdateStream:
+            self.logger.debug('Stream MODE for Catalog Sources')
+
+            if self.Mode == Constants.Mode.Stream:
+                # Call the Open Stream, in the case of an Stream
+                self.currentStream = self.GetStreamFileContainer()
+                if not self.currentStream:
+                    Error(self, "StreamFileContainer: S3 container is null")
+
+            if self.Mode == Constants.Mode.UpdateStream:
+                # Call the get the large file container
+                self.currentStream = self.GetLargeFileContainer()
+                if not self.currentStream:
+                    Error(self, "GetLargeFileContainer: S3 container is null")
+
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def Add(self, p_CoveoDocument):
@@ -862,15 +1073,24 @@ class Push:
         # Batch Call
         self.UploadBatch(self.ToAdd, self.ToDel)
 
+        # Close the stream
+        if self.Mode==Constants.Mode.Stream:
+            self.logger.debug(self.GetCloseStreamUrl(self.currentStream.StreamId))
+            r = requests.post(
+                self.GetCloseStreamUrl(self.currentStream.StreamId),
+                headers=self.GetRequestHeaders()
+            )
+            self.CheckReturnCode(r)
+
         # Delete Older Documents
-        if p_DeleteOlder:
+        if p_DeleteOlder and self.Mode==Constants.Mode.Push:
             self.DeleteOlderThan(self.StartOrderingId)
 
         self.ToAdd = []
         self.ToDel = []
 
         # Update Source Status
-        if p_UpdateStatus:
+        if p_UpdateStatus and self.Mode==Constants.Mode.Push:
             self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
