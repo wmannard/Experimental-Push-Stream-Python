@@ -143,10 +143,12 @@ class Push:
     BatchPermissions = []
     MaxRequestSize = 0
     currentStream = None
+    save = False
+    curFile = 1
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Default constructor used by the deserialization.
-    def __init__(self, p_SourceId: str, p_OrganizationId: str, p_ApiKey: str, p_Endpoint: Constants.PushApiEndpoint = Constants.PushApiEndpoint.PROD_PUSH_API_URL, p_Mode: Constants.Mode = Constants.Mode.Push):
+    def __init__(self, p_SourceId: str, p_OrganizationId: str, p_ApiKey: str, p_Endpoint: Constants.PushApiEndpoint = Constants.PushApiEndpoint.PROD_PUSH_API_URL, p_Mode: Constants.Mode = Constants.Mode.Push, p_Save:bool=False, p_Offset:int=1):
         """
         Push Constructor.
         :arg p_SourceId: Source Id to use
@@ -162,6 +164,8 @@ class Push:
         self.Endpoint = p_Endpoint
         self.MaxRequestSize = 255052544
         self.Mode = p_Mode
+        self.save = p_Save
+        self.curFile = p_Offset
         self.logger = logging.getLogger('CoveoPush')
         self.SetupLogging()
         # validate Api Key
@@ -193,7 +197,7 @@ class Push:
         return Constants.MAXIMUM_REQUEST_SIZE_IN_BYTES
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def SetupLogging(self, p_LEVEL=logging.DEBUG, p_OutputFile='CoveoPush.log', p_Format="%(asctime)s %(levelname)-5s [%(filename)s:%(lineno)s %(funcName)s()] %(message)s"):
+    def SetupLogging(self, p_LEVEL=logging.INFO, p_OutputFile='CoveoPush.log', p_Format="%(asctime)s %(levelname)-5s [%(filename)s:%(lineno)s %(funcName)s()] %(message)s"):
         """
         SetupLogging.
         :arg p_LEVEL: Logging level (logging.DEBUG)
@@ -846,7 +850,7 @@ class Push:
         :arg p_ToDelete: list of CoveoDocumentToDelete to delete
         """
 
-        self.logger.debug('UploadBatch')
+        self.logger.info('UploadBatch')
         if not p_ToAdd and not p_ToDelete:
             Error(self, "UploadBatch: p_ToAdd and p_ToDelete are empty")
 
@@ -859,13 +863,20 @@ class Push:
             self.AddUpdateDocumentsRequest(container.FileId)
 
         if self.Mode == Constants.Mode.Stream:
-            self.UploadDocuments(self.currentStream.UploadUri, p_ToAdd, p_ToDelete)
-            # get a new container for the next batch?
-            container = self.GetStreamChunkFileContainer(self.currentStream.StreamId)
-            self.currentStream.UploadUri = container.UploadUri
-            self.currentStream.FileId = container.FileId
-            if not container:
-                Error(self, "UploadBatch: S3 container is null")
+            if (self.save):
+              name = "batch/"+str(self.curFile) + "_batch.json"
+              self.curFile = self.curFile +1
+              with open(name, "w", encoding='utf-8') as file:
+                text = json.dumps(p_ToAdd, ensure_ascii=True)
+                file.write(text)
+            else:
+              self.UploadDocuments(self.currentStream.UploadUri, p_ToAdd, p_ToDelete)
+              # get a new container for the next batch?
+              container = self.GetStreamChunkFileContainer(self.currentStream.StreamId)
+              self.currentStream.UploadUri = container.UploadUri
+              self.currentStream.FileId = container.FileId
+              if not container:
+                  Error(self, "UploadBatch: S3 container is null")
 
         if self.Mode == Constants.Mode.UpdateStream:
             container = self.GetLargeFileContainer()
@@ -969,7 +980,7 @@ class Push:
         self.ProcessAndUploadBatch(allDocuments)
 
         # Close the stream
-        if self.Mode==Constants.Mode.Stream:
+        if self.Mode == Constants.Mode.Stream or self.Mode == Constants.Mode.UpdateStream:
             self.logger.debug(self.GetCloseStreamUrl(self.currentStream.StreamId))
             r = requests.post(
                 self.GetCloseStreamUrl(self.currentStream.StreamId),
@@ -1059,6 +1070,32 @@ class Push:
                 Error(self, "Add: "+p_CoveoDocument.DocumentId+", "+error)
             else:
                 self.ToAdd.append(p_CoveoDocument.ToJson())
+ 
+ # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def AddJson(self, p_Json):
+        """
+        Add.
+        Add a document to the batch call, if the buffer max is reached content is pushed
+        :arg p_CoveoDocument: Coveoocument of CoveoDocumentToDelete
+        """
+
+        self.logger.debug('AddJson')
+
+        documentSize = len(jsonpickle.encode(p_Json, unpicklable=False)) + 1
+
+        self.totalSize += documentSize
+        self.logger.debug("Currentsize: "+str(self.totalSize) + " vs max: "+str(self.GetSizeMaxRequest()))
+
+        if (documentSize > self.GetSizeMaxRequest()):
+            Error(self, "No document can be larger than " + str(self.GetSizeMaxRequest())+" bytes in size.")
+
+        if (self.totalSize > self.GetSizeMaxRequest() - (len(self.ToAdd) + len(self.ToDel))):
+            self.UploadBatch(self.ToAdd, self.ToDel)
+            self.ToAdd = []
+            self.ToDel = []
+            self.totalSize = documentSize
+
+        self.ToAdd.append(p_Json)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def End(self, p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
@@ -1074,7 +1111,8 @@ class Push:
         self.UploadBatch(self.ToAdd, self.ToDel)
 
         # Close the stream
-        if self.Mode==Constants.Mode.Stream:
+        if self.Mode == Constants.Mode.Stream or self.Mode == Constants.Mode.UpdateStream:
+          if not self.save:
             self.logger.debug(self.GetCloseStreamUrl(self.currentStream.StreamId))
             r = requests.post(
                 self.GetCloseStreamUrl(self.currentStream.StreamId),
