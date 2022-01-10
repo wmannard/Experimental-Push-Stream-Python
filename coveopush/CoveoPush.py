@@ -980,7 +980,7 @@ class Push:
         self.ProcessAndUploadBatch(allDocuments)
 
         # Close the stream
-        if self.Mode == Constants.Mode.Stream or self.Mode == Constants.Mode.UpdateStream:
+        if self.Mode == Constants.Mode.Stream:
             self.logger.debug(self.GetCloseStreamUrl(self.currentStream.StreamId))
             r = requests.post(
                 self.GetCloseStreamUrl(self.currentStream.StreamId),
@@ -1111,7 +1111,7 @@ class Push:
         self.UploadBatch(self.ToAdd, self.ToDel)
 
         # Close the stream
-        if self.Mode == Constants.Mode.Stream or self.Mode == Constants.Mode.UpdateStream:
+        if self.Mode == Constants.Mode.Stream:
           if not self.save:
             self.logger.debug(self.GetCloseStreamUrl(self.currentStream.StreamId))
             r = requests.post(
