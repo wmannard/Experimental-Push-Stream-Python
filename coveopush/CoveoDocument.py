@@ -20,10 +20,12 @@ from datetime import datetime
 # ---------------------------------------------------------------------------------
 
 
-def hash(documentId):
-    hash_object = hashlib.sha256(documentId.encode('utf-8'))
-    hex_dig = hash_object.hexdigest()
-    return hex_dig
+def generatePermanentId(docId):
+    # generate a 60-character id
+    utf8 = docId.encode('utf-8')
+    md5 = hashlib.md5(utf8)
+    sha1 = hashlib.sha1(utf8)
+    return md5.hexdigest()[:30] + sha1.hexdigest()[:30]
 
 
 def isBase64(s):
@@ -164,7 +166,7 @@ class Document:
         :arg p_DocumentId: Document Id, valid URL
         """
         self.DocumentId = p_DocumentId
-        self.permanentid = hash(p_DocumentId)
+        self.permanentid = generatePermanentId(p_DocumentId)
         self.Permissions = []
         self.MetaData = {}
         self.Data = ''
