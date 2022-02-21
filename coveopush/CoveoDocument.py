@@ -114,11 +114,13 @@ class DocumentToDelete:
     # The unique document identifier for the source, must be the document URI.
     DocumentId = ''
     Title = ''
+    deleteChildren = False
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def __init__(self, p_DocumentId: str):
+    def __init__(self, p_DocumentId: str, p_deleteChildren:bool=False):
         self.DocumentId = p_DocumentId
         self.Title = p_DocumentId
+        self.deleteChildren = p_deleteChildren
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def ToJson(self):
@@ -128,6 +130,7 @@ class DocumentToDelete:
 
         all = dict()
         all["DocumentId"] = self.DocumentId
+        all["deleteChildren"] = self.deleteChildren
         return all
 
 # ---------------------------------------------------------------------------------

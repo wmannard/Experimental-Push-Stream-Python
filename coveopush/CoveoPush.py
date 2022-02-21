@@ -701,15 +701,18 @@ class Push:
             params[Constants.Parameters.DELETE_CHILDREN] = deleteChildren
 
         self.logger.debug(params)
-
-        # delete it
-        r = requests.delete(
-            self.GetDeleteDocumentUrl(),
-            headers=self.GetRequestHeaders(),
-            params=params
-        )
-        self.CheckReturnCode(r)
-        return r.status_code
+        if self.Mode == Constants.Mode.Push:
+            # delete it
+            r = requests.delete(
+                self.GetDeleteDocumentUrl(),
+                headers=self.GetRequestHeaders(),
+                params=params
+            )
+            self.CheckReturnCode(r)
+            return r.status_code
+        else:
+            mydoc = DocumentToDelete(p_DocumentId, deleteChildren)
+            self.Add(mydoc)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def DeleteOlderThan(self, orderingId: int = 0, queueDelay: int = None):
