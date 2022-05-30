@@ -9,4 +9,8 @@ setup(
     packages=['coveopush'],
     version='0.2',
     description='CoveoPush client',
+    install_requires=[
+        'requests',
+        'jsonpickle'
+    ]
 )

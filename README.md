@@ -21,12 +21,7 @@ Then, in your command prompt, enter the following command:
 pip install git+https://github.com/coveo-labs/SDK-Push-Python
 ```
 
-This SDK depends on the [Python Requests](http://docs.python-requests.org/en/master/user/install/#install) and [JSONPickle](https://jsonpickle.github.io/#download-install) libraries. If you do not already have them, you need to run the following commands:
-
-```
-pip install requests
-pip install jsonpickle
-```
+This SDK depends on the [Python Requests](http://docs.python-requests.org/en/master/user/install/#install) and [JSONPickle](https://jsonpickle.github.io/#download-install) libraries.
 
 ## Including the SDK in Your Code
 
