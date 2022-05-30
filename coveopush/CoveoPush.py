@@ -1010,6 +1010,9 @@ class Push:
         :arg p_DeleteOlder: bool (False), if older documents should be removed from the index after the new push
         """
 
+        self.ToAdd = []
+        self.ToDel = []
+        self.totalSize = 0
         self.logger.debug('Start')
         # Batch Call
         # First check

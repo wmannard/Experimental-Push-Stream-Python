@@ -173,23 +173,29 @@ Unless you are only sending one document, you should always be sending your docu
 When you want to push Catalog data, you must use a different approach when initializing the push module.
 
 The Catalog Data can be pushed in two ways:
-* The Initial Catalog (the full catalog), all old data will be wiped
-* A partial Catalog (only a few records)
+
+- The Initial Catalog (the full catalog), all old data will be wiped
+- A partial Catalog (only a few records)
 
 ### Pushing Initial catalog
+
 Create your push instance as:
+
 ```python
 push = CoveoPush.Push(sourceId, orgId, apiKey, p_Mode=CoveoConstants.Constants.Mode.Stream)
 ```
+
 The `p_Mode` will set the proper Streaming mode. This will ensure that the SDK will use the `/stream/open` and `/stream/close` calls.
 
 ### Pushing Partial catalog
+
 Create your push instance as:
+
 ```python
 push = CoveoPush.Push(sourceId, orgId, apiKey, p_Mode=CoveoConstants.Constants.Mode.UpdateStream)
 ```
-The `p_Mode` will set the proper Streaming mode. This will ensure that the SDK will use the `/stream/update` calls.
 
+The `p_Mode` will set the proper Streaming mode. This will ensure that the SDK will use the `/stream/update` calls.
 
 ## Adding Securities to Your Documents
 
@@ -336,11 +342,18 @@ This way, you ensure that the remaining identities are properly sent to the Cove
 After the next Security Permission update cycle, the securities will be updated (see [Refresh a Security Identity Provider](https://docs.coveo.com/en/1905/cloud-v2-administrators/security-identities---page#refresh-a-security-identity-provider)).
 
 ### Changes
+
+May 2022:
+
+- Fixed issue, initializing vars for .Start call
+
 Jan 2022:
+
 - Added support to store/save the json before pushing it into a batch
 - Fixed StreamUpdate call
 
 Juli 2021:
+
 - Support for Catalog stream
 
 June 2019:
