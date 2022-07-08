@@ -5,7 +5,7 @@
 #   Can push documents, update securities
 # -------------------------------------------------------------------------------------
 from .CoveoConstants import Constants
-from .CoveoDocument import Validate
+from .CoveoDocument import DocumentToUpdate, Validate
 from .CoveoDocument import Document
 from .CoveoDocument import DocumentToDelete
 from .CoveoDocument import BatchDocument
@@ -139,6 +139,7 @@ class Push:
     StartOrderingId = 0
     totalSize = 0
     ToAdd = []
+    ToUpdate = []
     ToDel = []
     BatchPermissions = []
     MaxRequestSize = 0
@@ -553,25 +554,27 @@ class Push:
         self.logger.debug('result: '+str(r.status_code))
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def UploadDocuments(self, p_UploadUri: str, p_ToAdd: [], p_ToDelete: []):
+    def UploadDocuments(self, p_UploadUri: str, p_ToAdd: [], p_ToDelete: [], p_ToUpdate: []):
         """
         UploadDocuments.
         Upload a batch document to S3.
         :arg p_UploadUri: string, retrieved from the GetLargeFileContainer call
         :arg p_ToAdd: list of CoveoDocuments to add
         :arg p_ToDelete: list of CoveoDocumentToDelete to delete
+        :arg p_ToUpdate: list of CoveoDocuments to update
         """
 
         self.logger.debug(p_UploadUri)
 
         if not p_UploadUri:
             Error(self, "UploadDocument: p_UploadUri is not present")
-        if not p_ToAdd and not p_ToDelete:
-            Error(self, "UploadBatch: p_ToAdd and p_ToDelete are empty")
+        if not p_ToAdd and not p_ToDelete and not p_ToUpdate:
+            Error(self, "UploadBatch: p_ToAdd and p_ToDelete and p_ToUpdate are empty")
 
         data = BatchDocument()
         data.AddOrUpdate = p_ToAdd
         data.Delete = p_ToDelete
+        data.partialUpdate = p_ToUpdate
 
         r = requests.put(
             p_UploadUri,
@@ -845,24 +848,25 @@ class Push:
         return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def UploadBatch(self, p_ToAdd: [], p_ToDelete: []):
+    def UploadBatch(self, p_ToAdd: [], p_ToDelete: [], p_ToUpdate: []):
         """
         UploadBatch.
         Uploads the batch to S3 and calls the Push API to record the fileId
         :arg p_ToAdd: list of CoveoDocuments to add
         :arg p_ToDelete: list of CoveoDocumentToDelete to delete
+        :arg p_ToUpdate: list of CoveoDocumentToUpdate to delete
         """
 
         self.logger.info('UploadBatch')
-        if not p_ToAdd and not p_ToDelete:
-            Error(self, "UploadBatch: p_ToAdd and p_ToDelete are empty")
+        if not p_ToAdd and not p_ToDelete and not p_ToUpdate:
+            Error(self, "UploadBatch: p_ToAdd and p_ToDelete and p_ToUpdate are empty")
 
         if self.Mode == Constants.Mode.Push:
             container = self.GetLargeFileContainer()
             if not container:
                 Error(self, "UploadBatch: S3 container is null")
 
-            self.UploadDocuments(container.UploadUri, p_ToAdd, p_ToDelete)
+            self.UploadDocuments(container.UploadUri, p_ToAdd, p_ToDelete, p_ToUpdate)
             self.AddUpdateDocumentsRequest(container.FileId)
 
         if self.Mode == Constants.Mode.Stream:
@@ -873,7 +877,7 @@ class Push:
                 text = json.dumps(p_ToAdd, ensure_ascii=True)
                 file.write(text)
             else:
-              self.UploadDocuments(self.currentStream.UploadUri, p_ToAdd, p_ToDelete)
+              self.UploadDocuments(self.currentStream.UploadUri, p_ToAdd, p_ToDelete, p_ToUpdate)
               # get a new container for the next batch?
               container = self.GetStreamChunkFileContainer(self.currentStream.StreamId)
               self.currentStream.UploadUri = container.UploadUri
@@ -886,7 +890,7 @@ class Push:
 
             if not container:
                 Error(self, "UploadBatch: S3 container is null")
-            self.UploadDocuments(container.UploadUri, p_ToAdd, p_ToDelete)
+            self.UploadDocuments(container.UploadUri, p_ToAdd, p_ToDelete,p_ToUpdate)
             self.AddUpdateStreamRequest(container.FileId)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -900,6 +904,7 @@ class Push:
         self.logger.debug('ProcessAndUploadBatch')
         currentBatchToDelete = []
         currentBatchToAddUpdate = []
+        currentBatchToUpdate = []
 
         totalSize = 0
         for document in p_Documents:
@@ -914,14 +919,17 @@ class Push:
             if (documentSize > self.GetSizeMaxRequest()):
                 Error(self, "No document can be larger than " + str(self.GetSizeMaxRequest())+" bytes in size.")
 
-            if (totalSize > self.GetSizeMaxRequest() - (len(currentBatchToAddUpdate) + len(currentBatchToDelete))):
-                self.UploadBatch(currentBatchToAddUpdate, currentBatchToDelete)
+            if (totalSize > self.GetSizeMaxRequest() - (len(currentBatchToAddUpdate) + len(currentBatchToDelete)+ len(currentBatchToUpdate))):
+                self.UploadBatch(currentBatchToAddUpdate, currentBatchToDelete, currentBatchToUpdate)
                 currentBatchToAddUpdate = []
                 currentBatchToDelete = []
+                currentBatchToUpdate = []
                 totalSize = documentSize
 
             if (type(document) is DocumentToDelete):
                 currentBatchToDelete.append(document.ToJson())
+            elif (type(document) is DocumentToUpdate):
+                currentBatchToUpdate.append(document.ToJson())
             else:
                 # Validate each document
                 valid, error = Validate(document)
@@ -930,18 +938,19 @@ class Push:
                 else:
                     currentBatchToAddUpdate.append(document.ToJson())
 
-        self.UploadBatch(currentBatchToAddUpdate, currentBatchToDelete)
+        self.UploadBatch(currentBatchToAddUpdate, currentBatchToDelete, currentBatchToUpdate)
 
         # In the case of a stream, close the stream
 
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def AddDocuments(self, p_CoveoDocumentsToAdd: [], p_CoveoDocumentsToDelete: [], p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
+    def AddDocuments(self, p_CoveoDocumentsToAdd: [], p_CoveoDocumentsToDelete: [], p_CoveoDocumentsToUpdate: [],p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
         """
         AddDocuments.
         Adds all documents in several batches to the Push API.
         :arg p_CoveoDocumentsToAdd: list of CoveoDocument to add
         :arg p_CoveoDocumentsToDelete: list of CoveoDocumentToDelete
+        :arg p_CoveoDocumentsToUpdate: list of CoveoDocumentToUpdate
         :arg p_UpdateStatus: bool (True), if the source status should be updated
         :arg p_DeleteOlder: bool (False), if older documents should be removed from the index after the new push
         """
@@ -979,6 +988,9 @@ class Push:
 
         if p_CoveoDocumentsToDelete:
             allDocuments = allDocuments.extend(p_CoveoDocumentsToDelete)
+
+        if p_CoveoDocumentsToUpdate:
+            allDocuments = allDocuments.extend(p_CoveoDocumentsToUpdate)
 
         self.ProcessAndUploadBatch(allDocuments)
 
@@ -1023,7 +1035,8 @@ class Push:
             self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
         
         # Check mode
-        if self.Mode == Constants.Mode.Stream or self.Mode == Constants.Mode.UpdateStream:
+        if (not self.save):
+          if self.Mode == Constants.Mode.Stream or self.Mode == Constants.Mode.UpdateStream:
             self.logger.debug('Stream MODE for Catalog Sources')
 
             if self.Mode == Constants.Mode.Stream:
@@ -1044,7 +1057,7 @@ class Push:
         """
         Add.
         Add a document to the batch call, if the buffer max is reached content is pushed
-        :arg p_CoveoDocument: Coveoocument of CoveoDocumentToDelete
+        :arg p_CoveoDocument: CoveoDocument or CoveoDocumentToDelete or CoveoDocumentToUpdate
         """
 
         self.logger.debug('Add')
@@ -1061,14 +1074,17 @@ class Push:
         if (documentSize > self.GetSizeMaxRequest()):
             Error(self, "No document can be larger than " + str(self.GetSizeMaxRequest())+" bytes in size.")
 
-        if (self.totalSize > self.GetSizeMaxRequest() - (len(self.ToAdd) + len(self.ToDel))):
-            self.UploadBatch(self.ToAdd, self.ToDel)
+        if (self.totalSize > self.GetSizeMaxRequest() - (len(self.ToAdd) + len(self.ToDel) + len(self.ToUpdate))):
+            self.UploadBatch(self.ToAdd, self.ToDel, self.ToUpdate)
             self.ToAdd = []
             self.ToDel = []
+            self.ToUpdate = []
             self.totalSize = documentSize
 
         if (type(p_CoveoDocument) is DocumentToDelete):
             self.ToDel.append(p_CoveoDocument.ToJson())
+        elif (type(p_CoveoDocument) is DocumentToUpdate):
+            self.ToUpdate.append(p_CoveoDocument.ToJson())
         else:
             # Validate each document
             valid, error = Validate(p_CoveoDocument)
@@ -1095,10 +1111,11 @@ class Push:
         if (documentSize > self.GetSizeMaxRequest()):
             Error(self, "No document can be larger than " + str(self.GetSizeMaxRequest())+" bytes in size.")
 
-        if (self.totalSize > self.GetSizeMaxRequest() - (len(self.ToAdd) + len(self.ToDel))):
-            self.UploadBatch(self.ToAdd, self.ToDel)
+        if (self.totalSize > self.GetSizeMaxRequest() - (len(self.ToAdd) + len(self.ToDel)+ len(self.ToUpdate))):
+            self.UploadBatch(self.ToAdd, self.ToDel, self.ToUpdate)
             self.ToAdd = []
             self.ToDel = []
+            self.ToUpdate = []
             self.totalSize = documentSize
 
         self.ToAdd.append(p_Json)
@@ -1114,7 +1131,7 @@ class Push:
 
         self.logger.debug('End')
         # Batch Call
-        self.UploadBatch(self.ToAdd, self.ToDel)
+        self.UploadBatch(self.ToAdd, self.ToDel, self.ToUpdate)
 
         # Close the stream
         if self.Mode == Constants.Mode.Stream:
@@ -1132,6 +1149,7 @@ class Push:
 
         self.ToAdd = []
         self.ToDel = []
+        self.ToUpdate = []
 
         # Update Source Status
         if p_UpdateStatus and self.Mode==Constants.Mode.Push:

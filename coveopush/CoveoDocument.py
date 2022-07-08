@@ -104,6 +104,7 @@ class BatchDocument:
     """
     AddOrUpdate = []
     Delete = []
+    partialUpdate = []
 
 # ---------------------------------------------------------------------------------
 
@@ -133,6 +134,41 @@ class DocumentToDelete:
         all = dict()
         all["DocumentId"] = self.DocumentId
         all["deleteChildren"] = self.deleteChildren
+        return all
+
+# ---------------------------------------------------------------------------------
+
+
+
+class DocumentToUpdate:
+    """
+    class DocumentToUpdate.
+    Class to hold the Document To Partial Update.
+    It should consist of the DocumentId (URL) only."""
+    # The unique document identifier for the source, must be the document URI.
+    DocumentId = ''
+    Operator = ''
+    Field = ''
+    Value = ''
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def __init__(self, p_DocumentId: str, p_Operator: str, p_Field: str, p_Value):
+        self.DocumentId = p_DocumentId
+        self.Operator = p_Operator
+        self.Field = p_Field
+        self.Value = p_Value
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def ToJson(self):
+        """ToJson, returns JSON for push.
+        Puts all metadata and other fields into clean"""
+        # Check if empty
+
+        all = dict()
+        all["DocumentId"] = self.DocumentId
+        all["operator"] = self.Operator
+        all["field"] = self.Field
+        all["value"] = self.Value
         return all
 
 # ---------------------------------------------------------------------------------
