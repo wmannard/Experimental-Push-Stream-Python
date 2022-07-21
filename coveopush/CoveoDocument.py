@@ -171,7 +171,7 @@ class DocumentToUpdate:
         # Check if empty
 
         all = dict()
-        all["DocumentId"] = self.DocumentId
+        all["documentId"] = self.DocumentId
         all["operator"] = self.Operator
         all["field"] = self.Field
         all["value"] = self.Value
