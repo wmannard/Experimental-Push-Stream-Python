@@ -338,6 +338,10 @@ After the next Security Permission update cycle, the securities will be updated 
 
 ### Changes
 
+July 2022:
+
+- Optimized encoding the batch json (faster)
+
 May 2022:
 
 - Fixed issue, initializing vars for .Start call

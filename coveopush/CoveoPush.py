@@ -18,6 +18,7 @@ from .CoveoPermissions import SecurityProviderReference
 import base64
 import json
 import jsonpickle
+from dataclasses import asdict, dataclass
 import logging
 import re
 import requests
@@ -571,16 +572,22 @@ class Push:
         if not p_ToAdd and not p_ToDelete and not p_ToUpdate:
             Error(self, "UploadBatch: p_ToAdd and p_ToDelete and p_ToUpdate are empty")
 
+        # start = time.time()
         data = BatchDocument()
         data.AddOrUpdate = p_ToAdd
         data.Delete = p_ToDelete
         data.partialUpdate = p_ToUpdate
-
+        encoded = data.toJson()#jsonpickle.encode(data, unpicklable=False)
+        #print (encoded)
+        # end = time.time()
+        # print("Encoding batch: "+str(end-start))
         r = requests.put(
             p_UploadUri,
-            data=jsonpickle.encode(data, unpicklable=False),
+            json=encoded,
             headers=self.GetRequestHeadersForS3()
         )
+        # start = time.time()
+        # print("PUT REQ: "+str(start-end))
         self.CheckReturnCode(r)
         self.logger.debug('result: '+str(r.status_code))
 
@@ -910,7 +917,8 @@ class Push:
         for document in p_Documents:
             # Add 1 byte to account for the comma in the JSON array.
             # documentSize = len(json.dumps(document,default=lambda x: x.__dict__)) + 1
-            documentSize = len(jsonpickle.encode(document.ToJson(), unpicklable=False)) + 1
+            #documentSize = len(jsonpickle.encode(document.ToJson(), unpicklable=False)) + 1
+            documentSize = len(json.dumps(document.ToJson())) + 1
 
             totalSize += documentSize
             self.logger.debug("Doc: "+document.DocumentId)
@@ -1065,7 +1073,8 @@ class Push:
         if not p_CoveoDocument:
             Error(self, "Add: p_CoveoDocument is empty")
 
-        documentSize = len(jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)) + 1
+        #documentSize = len(jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)) + 1
+        documentSize = len(json.dumps(p_CoveoDocument.ToJson())) + 1
 
         self.totalSize += documentSize
         self.logger.debug("Doc: "+p_CoveoDocument.DocumentId)
@@ -1103,7 +1112,8 @@ class Push:
 
         self.logger.debug('AddJson')
 
-        documentSize = len(jsonpickle.encode(p_Json, unpicklable=False)) + 1
+        documentSize = len(json.dumps(p_Json)) + 1
+        #documentSize = len(jsonpickle.encode(p_Json, unpicklable=False)) + 1
 
         self.totalSize += documentSize
         self.logger.debug("Currentsize: "+str(self.totalSize) + " vs max: "+str(self.GetSizeMaxRequest()))
