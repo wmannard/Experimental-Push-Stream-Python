@@ -107,9 +107,12 @@ class BatchDocument:
     partialUpdate = []
     def toJson(self):
       data = {}
-      data['AddOrUpdate'] = self.AddOrUpdate
-      data['Delete'] = self.Delete
-      data['partialUpdate'] = self.partialUpdate
+      if len(self.AddOrUpdate)>0:
+        data['AddOrUpdate'] = self.AddOrUpdate
+      if len(self.Delete)>0:
+        data['Delete'] = self.Delete
+      if len(self.partialUpdate)>0:
+        data['partialUpdate'] = self.partialUpdate
       return data
 
 # ---------------------------------------------------------------------------------

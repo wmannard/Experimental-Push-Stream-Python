@@ -577,13 +577,14 @@ class Push:
         data.AddOrUpdate = p_ToAdd
         data.Delete = p_ToDelete
         data.partialUpdate = p_ToUpdate
-        encoded = data.toJson()#jsonpickle.encode(data, unpicklable=False)
+        #encoded = jsonpickle.encode(data, unpicklable=False) #data.toJson()#
+        encoded = json.dumps(data.toJson())
         #print (encoded)
         # end = time.time()
         # print("Encoding batch: "+str(end-start))
         r = requests.put(
             p_UploadUri,
-            json=encoded,
+            data=encoded,
             headers=self.GetRequestHeadersForS3()
         )
         # start = time.time()
