@@ -338,6 +338,10 @@ After the next Security Permission update cycle, the securities will be updated 
 
 ### Changes
 
+Nov 2022:
+
+- Optimized saving json
+
 Aug 2022:
 
 - Back to jsonpickle (deserialization errors)

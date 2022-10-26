@@ -572,16 +572,16 @@ class Push:
         if not p_ToAdd and not p_ToDelete and not p_ToUpdate:
             Error(self, "UploadBatch: p_ToAdd and p_ToDelete and p_ToUpdate are empty")
 
-        # start = time.time()
+        #start = time.time()
         data = BatchDocument()
         data.AddOrUpdate = p_ToAdd
         data.Delete = p_ToDelete
         data.partialUpdate = p_ToUpdate
-        encoded = jsonpickle.encode(data, unpicklable=False) #data.toJson()#
-        #encoded = json.dumps(data.toJson())
+        #encoded = jsonpickle.encode(data, unpicklable=False) #data.toJson()#
+        encoded = json.dumps(data.toJson(),default = str)
         #print (encoded)
-        # end = time.time()
-        # print("Encoding batch: "+str(end-start))
+        #end = time.time()
+        #print("Encoding batch: "+str(end-start))
         r = requests.put(
             p_UploadUri,
             data=encoded,
@@ -919,8 +919,8 @@ class Push:
         for document in p_Documents:
             # Add 1 byte to account for the comma in the JSON array.
             # documentSize = len(json.dumps(document,default=lambda x: x.__dict__)) + 1
-            documentSize = len(jsonpickle.encode(document.ToJson(), unpicklable=False)) + 1
-            #documentSize = len(json.dumps(document.ToJson())) + 1
+            #documentSize = len(jsonpickle.encode(document.ToJson(), unpicklable=False)) + 1
+            documentSize = len(json.dumps(document.ToJson())) + 1
 
             totalSize += documentSize
             self.logger.debug("Doc: "+document.DocumentId)
@@ -1075,8 +1075,8 @@ class Push:
         if not p_CoveoDocument:
             Error(self, "Add: p_CoveoDocument is empty")
 
-        documentSize = len(jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)) + 1
-        #documentSize = len(json.dumps(p_CoveoDocument.ToJson())) + 1
+        #documentSize = len(jsonpickle.encode(p_CoveoDocument.ToJson(), unpicklable=False)) + 1
+        documentSize = len(json.dumps(p_CoveoDocument.ToJson(),default = str)) + 1
 
         self.totalSize += documentSize
         self.logger.debug("Doc: "+p_CoveoDocument.DocumentId)
