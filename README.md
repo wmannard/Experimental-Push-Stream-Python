@@ -341,6 +341,7 @@ After the next Security Permission update cycle, the securities will be updated 
 Nov 2022:
 
 - Optimized saving json
+- AddJson as a single document (AddSingleJson)
 
 Aug 2022:
 

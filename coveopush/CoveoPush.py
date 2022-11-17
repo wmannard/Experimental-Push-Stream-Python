@@ -692,6 +692,40 @@ class Push:
         )
         self.CheckReturnCode(r)
         return r.status_code
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def AddUpdateJsonRequest(self, p_json, p_documentid, orderingId: int = None):
+        """
+        AddUpdateDocumentRequest.
+        Sends the document to the Push API, if previously uploaded to s3 the fileId is set
+        :arg p_Document: Document
+        :arg orderingId: int (optional)
+        """
+
+        params = {
+            Constants.Parameters.DOCUMENT_ID: p_documentid
+        }
+
+        if orderingId is not None:
+            params[Constants.Parameters.ORDERING_ID] = orderingId
+
+        self.logger.debug(params)
+
+        # Set the compression type parameter
+        if (p_json['CompressedBinaryData'] != '' or p_json['CompressedBinaryDataFileId'] != ''):
+            params[Constants.Parameters.COMPRESSION_TYPE] = Constants.CompressionType.UNCOMPRESSED
+
+        body = jsonpickle.encode(p_json, unpicklable=False)
+        # self.logger.debug(body)
+
+        # make POST request to change status
+        r = requests.put(
+            self.GetUpdateDocumentUrl(),
+            data=body,
+            headers=self.GetRequestHeaders(),
+            params=params
+        )
+        self.CheckReturnCode(r)
+        return r.status_code
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def DeleteDocument(self, p_DocumentId: str, orderingId: int = None, deleteChildren: bool = False):
@@ -791,6 +825,33 @@ class Push:
             self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def AddSingleJson(self, p_json, p_documentId, updateStatus: bool = False, orderingId: int = None):
+        """
+        AddSingleDocument.
+        Pushes the Document to the Push API
+        :arg p_Json: json
+        :arg p_UpdateStatus: bool (True), if the source status should be updated
+        :arg orderingId: int, optional
+        """
+
+        self.logger.info(p_documentId)
+        
+
+        # Update Source Status
+        if updateStatus:
+            self.UpdateSourceStatus(Constants.SourceStatusType.Rebuild)
+
+        # Push Document
+        try:
+            self.AddUpdateJsonRequest(p_json, p_documentId, orderingId)
+        finally:
+            pass
+
+        # Update Source Status
+        if updateStatus:
+            self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def RemoveSingleDocument(self, p_DocumentId: str, updateStatus: bool = True, orderingId: int = None, deleteChildren: bool = False):
         """
         RemoveSingleDocument.
@@ -813,7 +874,8 @@ class Push:
         # Update Source Status
         if updateStatus:
             self.UpdateSourceStatus(Constants.SourceStatusType.Idle)
-
+    
+    
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddUpdateDocumentsRequest(self, p_FileId: str):
         """
