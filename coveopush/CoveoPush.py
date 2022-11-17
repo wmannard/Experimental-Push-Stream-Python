@@ -712,7 +712,7 @@ class Push:
 
         # Set the compression type parameter
         #if (p_json['CompressedBinaryData'] != '' or p_json['CompressedBinaryDataFileId'] != ''):
-        params[Constants.Parameters.COMPRESSION_TYPE] = Constants.CompressionType.UNCOMPRESSED
+        params[Constants.Parameters.COMPRESSION_TYPE] = 'UNCOMPRESSED'
 
         body = jsonpickle.encode(p_json, unpicklable=False)
         # self.logger.debug(body)
