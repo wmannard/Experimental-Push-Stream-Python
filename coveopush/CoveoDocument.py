@@ -329,6 +329,28 @@ class Document:
         self.CompressedBinaryDataFileId = ''
         self.CompressionType = p_CompressionType.value
 
+    def SetCompressedEncodedDataNoCheck(self, p_CompressedEncodedData: str, p_CompressionType: CoveoConstants.Constants.CompressionType = CoveoConstants.Constants.CompressionType.ZLIB):
+        """
+        SetCompressedEncodedData.
+        Sets the CompressedBinaryData property.
+        Make sure to set the proper CompressionType and Base64 encode the CompressedEncodedData.
+        :arg p_CompressedEncodedData: str, Encoded Data (base64 ecoded)
+        :arg p_CompressionType: CoveoConstants.Constants.CompressionType (def: ZLIB), CompressionType to Use
+        """
+
+        self.logger.debug('SetCompressedEncodedData')
+        # Check if empty
+        if (p_CompressedEncodedData == ''):
+            Error(self, "SetCompressedEncodedData: value not set")
+
+        # # Check if base64 encoded
+        # if not (isBase64(p_CompressedEncodedData)):
+        #     Error(self, "SetCompressedEncodedData: value must be base64 encoded.")
+
+        self.CompressedBinaryData = p_CompressedEncodedData
+        self.CompressedBinaryDataFileId = ''
+        self.CompressionType = p_CompressionType.value
+
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def SetContentAndZLibCompress(self, p_Content: str):
         """
