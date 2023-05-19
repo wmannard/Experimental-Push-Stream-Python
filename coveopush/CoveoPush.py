@@ -945,7 +945,7 @@ class Push:
               name = "batch/"+str(self.curFile) + "_batch.json"
               self.curFile = self.curFile +1
               with open(name, "w", encoding='utf-8') as file:
-                text = json.dumps(p_ToAdd, ensure_ascii=True)
+                text = json.dumps(p_ToAdd, ensure_ascii=True,default = str)
                 file.write(text)
             else:
               self.UploadDocuments(self.currentStream.UploadUri, p_ToAdd, p_ToDelete, p_ToUpdate)
@@ -982,7 +982,7 @@ class Push:
             # Add 1 byte to account for the comma in the JSON array.
             # documentSize = len(json.dumps(document,default=lambda x: x.__dict__)) + 1
             #documentSize = len(jsonpickle.encode(document.ToJson(), unpicklable=False)) + 1
-            documentSize = len(json.dumps(document.ToJson())) + 1
+            documentSize = len(json.dumps(document.ToJson(),default = str)) + 1
 
             totalSize += documentSize
             self.logger.debug("Doc: "+document.DocumentId)
@@ -1176,7 +1176,7 @@ class Push:
 
         self.logger.debug('AddJson')
 
-        documentSize = len(json.dumps(p_Json)) + 1
+        documentSize = len(json.dumps(p_Json,default = str)) + 1
         #documentSize = len(jsonpickle.encode(p_Json, unpicklable=False)) + 1
 
         self.totalSize += documentSize

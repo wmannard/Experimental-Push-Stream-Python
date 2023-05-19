@@ -12,34 +12,34 @@ from coveopush import CoveoConstants
 
 
 def main():
-    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
-    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
-    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
+    # sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
+    # orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
+    # apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
 
-    # Shortcut for constants
+    # # Shortcut for constants
     GROUP = CoveoConstants.Constants.PermissionIdentityType.Group
     USER = CoveoConstants.Constants.PermissionIdentityType.User
 
-    # Setup the push client
-    push = CoveoPush.Push(sourceId, orgId, apiKey)
+    # # Setup the push client
+    # push = CoveoPush.Push(sourceId, orgId, apiKey)
 
-    # First set the securityprovidername
+    # # First set the securityprovidername
     mysecprovidername = "MySecurityProviderTest"
-    # Define cascading security provider information
-    cascading = {
-        "Email Security Provider": {
-            "name": "Email Security Provider",
-            "type": "EMAIL"
-        }
-    }
+    # # Define cascading security provider information
+    # cascading = {
+    #     "Email Security Provider": {
+    #         "name": "Email Security Provider",
+    #         "type": "EMAIL"
+    #     }
+    # }
 
-    # Create it
-    push.AddSecurityProvider(mysecprovidername, "EXPANDED", cascading)
-    startOrderingId = push.CreateOrderingId()
-    # Delete all old entries
-    push.DeletePermissionsOlderThan(mysecprovidername, startOrderingId)
-    print("Old ids removed. Updating security cache")
-    input("Press any key to continue...")
+    # # Create it
+    # push.AddSecurityProvider(mysecprovidername, "EXPANDED", cascading)
+    # startOrderingId = push.CreateOrderingId()
+    # # Delete all old entries
+    # push.DeletePermissionsOlderThan(mysecprovidername, startOrderingId)
+    # print("Old ids removed. Updating security cache")
+    # input("Press any key to continue...")
 
     # Create a document
     mydoc = Document('https://myreference&id=TESTMESECURITY')
@@ -112,7 +112,7 @@ def main():
     text = json.dumps(mydoc.ToJson(), ensure_ascii=True,default = str)
 
     # Push the document
-    push.AddSingleDocument(mydoc)
+    #push.AddSingleDocument(mydoc)
 
     # First do a single call to update an identity
     # We now also need to add the expansion/memberships/mappings to the security cache

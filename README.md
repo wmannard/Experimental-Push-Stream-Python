@@ -338,6 +338,10 @@ After the next Security Permission update cycle, the securities will be updated 
 
 ### Changes
 
+May 2023:
+
+- Fix permission json
+
 Nov 2022:
 
 - Optimized saving json
