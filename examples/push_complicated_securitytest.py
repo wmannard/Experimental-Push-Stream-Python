@@ -5,6 +5,7 @@
 
 import os
 import json
+
 from coveopush import CoveoPush
 from coveopush import Document
 from coveopush import CoveoPermissions
@@ -12,6 +13,7 @@ from coveopush import CoveoConstants
 
 
 def main():
+    all_docs=[]
     # sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
     # orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
     # apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
@@ -108,9 +110,11 @@ def main():
     # Set the permissions on the document
     mydoc.Permissions.append(permLevel1)
     mydoc.Permissions.append(permLevel2)
-
+    all_docs.append(mydoc.ToJson())
+    text = json.dumps(mydoc.ToJson(), ensure_ascii=True)
+    print (text)
     text = json.dumps(mydoc.ToJson(), ensure_ascii=True,default = str)
-
+    print (text)
     # Push the document
     #push.AddSingleDocument(mydoc)
 
@@ -125,7 +129,7 @@ def main():
     # Remove the last group, so we can add it later with a single call
     groups.pop()
 
-    push.StartExpansion(mysecprovidername)
+    #push.StartExpansion(mysecprovidername)
 
     # group memberships for: HR, RD
     for group in groups:

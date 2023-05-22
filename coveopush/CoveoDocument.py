@@ -97,7 +97,7 @@ def Warning(log, err):
 # ---------------------------------------------------------------------------------
 
 
-class BatchDocument:
+class BatchDocument():
     """
     class BatchDocument.
     Class to hold the Batch Document.
@@ -105,6 +105,7 @@ class BatchDocument:
     AddOrUpdate = []
     Delete = []
     partialUpdate = []
+
     def toJson(self):
       data = {}
       if len(self.AddOrUpdate)>0:
@@ -233,7 +234,6 @@ class Document:
         ToJson, returns JSON for push.
         Puts all metadata and other fields into a clean JSON object"""
         # Check if empty
-
         attributes = [
             'DocumentId', 'permanentid', 'Title', 'ClickableUri',
             'Data', 'CompressedBinaryData', 'CompressedBinaryDataFileId', 'CompressionType',
@@ -250,7 +250,8 @@ class Document:
 
         for meta in self.MetaData:
             all[meta] = self.MetaData[meta]
-
+        # alljson = json.loads(json.dumps(ensure_ascii=True,default = str))
+        # print (alljson)
         return all
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

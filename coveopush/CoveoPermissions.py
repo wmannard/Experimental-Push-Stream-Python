@@ -15,7 +15,7 @@ def Error(log, err):
 # ---------------------------------------------------------------------------------
 
 
-class PermissionIdentity:
+class PermissionIdentity(dict):
     """
     class PermissionIdentity.
     Class to hold the Permission Identity.
@@ -41,6 +41,7 @@ class PermissionIdentity:
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __init__(self, p_IdentityType: Constants.PermissionIdentityType, p_SecurityProvider: str, p_Identity: str, p_AdditionalInfo: {} = {}):
+        dict.__init__(self,type=p_IdentityType.value,provider=p_SecurityProvider,name=p_Identity,additionalInfo=p_AdditionalInfo)
         """
         class PermissionIdentity constructor.
         :arg p_IdentityType: PermissionIdentityType.
@@ -48,17 +49,17 @@ class PermissionIdentity:
         :arg p_Identity: Identity to add
         :arg p_AdditionalInfo: AdditionalInfo dict {} to add
         """
-        self.identity = p_Identity
-        self.securityProvider = p_SecurityProvider
-        self.identityType = p_IdentityType.value
+        self['identity'] = p_Identity
+        self['securityProvider'] = p_SecurityProvider
+        self['identityType'] = p_IdentityType.value
         if not isinstance(p_AdditionalInfo, dict):
             raise Exception(
                 "PermissionIdentity: p_AdditionalInfo is not a dictionary")
-        self.AdditionalInfo = p_AdditionalInfo
+        self['AdditionalInfo'] = p_AdditionalInfo
 
 
 # ---------------------------------------------------------------------------------
-class PermissionIdentityExpansion:
+class PermissionIdentityExpansion(dict):
     """
     class PermissionIdentityExpansion.
     Class to hold the Permission Identity for expansion.
@@ -84,6 +85,7 @@ class PermissionIdentityExpansion:
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def __init__(self, p_IdentityType: Constants.PermissionIdentityType, p_SecurityProvider: str, p_Identity: str, p_AdditionalInfo: {} = {}):
+        dict.__init__(self,type=p_IdentityType.value,provider=p_SecurityProvider,name=p_Identity,additionalInfo=p_AdditionalInfo)
         """
         class PermissionIdentityExpansion constructor.
         :arg p_IdentityType: PermissionIdentityType.
@@ -91,17 +93,17 @@ class PermissionIdentityExpansion:
         :arg p_Identity: Identity to add
         :arg p_AdditionalInfo: AdditionalInfo dict {} to add
         """
-        self.name = p_Identity
-        self.provider = p_SecurityProvider
-        self.type = p_IdentityType.value
+        self['name'] = p_Identity
+        self['provider'] = p_SecurityProvider
+        self['type'] = p_IdentityType.value
         if not isinstance(p_AdditionalInfo, dict):
             raise Exception("PermissionIdentityExpansion: p_AdditionalInfo is not a dictionary")
 
-        self.additionalInfo = p_AdditionalInfo
+        self['additionalInfo'] = p_AdditionalInfo
 
 
 # ---------------------------------------------------------------------------------
-class DocumentPermissionSet:
+class DocumentPermissionSet(dict):
     """
     class DocumentPermissionSet.
     Class to hold one Permission Set.
@@ -121,10 +123,12 @@ class DocumentPermissionSet:
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Default constructor used by the deserialization.
     def __init__(self, p_Name: str):
-        self.Name = p_Name
-        self.AllowAnonymous = False
-        self.AllowedPermissions = []
-        self.DeniedPermissions = []
+        dict.__init__(self,Name=p_Name)
+
+        self['Name'] = p_Name
+        self['AllowAnonymous'] = False
+        self['AllowedPermissions'] = []
+        self['DeniedPermissions'] = []
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddAllowedPermissions(self, p_PermissionIdentities: []):
@@ -146,7 +150,7 @@ class DocumentPermissionSet:
         if not (type(p_PermissionIdentities[0]) is PermissionIdentity):
             Error(self, "AddAllowedPermissions: value is not of type PermissionIdentity")
 
-        self.AllowedPermissions.extend(p_PermissionIdentities)
+        self['AllowedPermissions'].extend(p_PermissionIdentities)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddDeniedPermissions(self, p_PermissionIdentities: []):
@@ -168,11 +172,11 @@ class DocumentPermissionSet:
         if not (type(p_PermissionIdentities[0]) is PermissionIdentity):
             Error(self, "AddDeniedPermissions: value is not of type PermissionIdentity")
 
-        self.DeniedPermissions.extend(p_PermissionIdentities)
+        self['DeniedPermissions'].extend(p_PermissionIdentities)
 
 
 # ---------------------------------------------------------------------------------
-class DocumentPermissionLevel:
+class DocumentPermissionLevel(dict):
     """
     class DocumentPermissionLevel.
     Class to hold one Permission Level.
@@ -186,8 +190,9 @@ class DocumentPermissionLevel:
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Default constructor used by the deserialization.
     def __init__(self, p_Name: str):
-        self.Name = p_Name
-        self.PermissionSets = []
+        dict.__init__(self,Name=p_Name)
+        self['Name'] = p_Name
+        self['PermissionSets'] = []
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddPermissionSet(self, p_DocumentPermissionSet: DocumentPermissionSet):
@@ -200,11 +205,11 @@ class DocumentPermissionLevel:
         if not (type(p_DocumentPermissionSet) is DocumentPermissionSet):
             Error(self, "AddPermissionSet: value is not of type DocumentPermissionSet")
 
-        self.PermissionSets.append(p_DocumentPermissionSet)
+        self['PermissionSets'].append(p_DocumentPermissionSet)
 
 
 # ---------------------------------------------------------------------------------
-class PermissionIdentityBody:
+class PermissionIdentityBody(dict):
     """
     class PermissionIdentityBody.
     Class to hold all associated Permission information for one Identity.
@@ -234,9 +239,11 @@ class PermissionIdentityBody:
     # List of PermissionIdentityExpansion
     wellKnowns = []
 
+
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Default constructor used by the deserialization.
     def __init__(self, p_Identity: PermissionIdentityExpansion):
+        dict.__init__(self,identity=p_Identity)
         """
         Constructor PermissionIdentityBody.
         :arg p_Identity: Identity name.
@@ -244,10 +251,10 @@ class PermissionIdentityBody:
         if not (type(p_Identity) is PermissionIdentityExpansion):
             Error(self, "PermissionIdentityBody constructor: value is not of type PermissionIdentityExpansion")
 
-        self.identity = p_Identity
-        self.mappings = []
-        self.members = []
-        self.wellKnowns = []
+        self['identity'] = p_Identity
+        self['mappings'] = []
+        self['members'] = []
+        self['wellKnowns'] = []
 
     def __add(self, attr: str, p_PermissionIdentities: []):
         """
@@ -269,7 +276,7 @@ class PermissionIdentityBody:
         if not (type(p_PermissionIdentities[0]) is PermissionIdentityExpansion):
             Error(self, "Adding to " + attr + ": value is not of type PermissionIdentityExpansion")
 
-        self.__dict__[attr].extend(p_PermissionIdentities)
+        self[attr].extend(p_PermissionIdentities)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMembers(self, p_PermissionIdentities: []):
@@ -283,7 +290,7 @@ class PermissionIdentityBody:
 
 
 # ---------------------------------------------------------------------------------
-class BatchPermissions:
+class BatchPermissions(dict):
     """
     class BatchPermissions.
     Class to hold the Batch Document.
@@ -295,14 +302,16 @@ class BatchPermissions:
     # PermissionIdentityBody
     deleted = []
 
+
     # Default constructor used by the deserialization.
     def __init__(self):
+        dict.__init__(self)
         """
         Constructor BatchPermissions.
         """
-        self.mappings = []
-        self.members = []
-        self.deleted = []
+        self['mappings'] = []
+        self['members'] = []
+        self['deleted'] = []
 
     def __add(self, attr: str, p_PermissionIdentityBodies: []):
         """
@@ -324,7 +333,7 @@ class BatchPermissions:
         if not (type(p_PermissionIdentityBodies[0]) is PermissionIdentityBody):
             Error(self, "Adding to " + attr + ": value is not of type PermissionIdentity")
 
-        self.__dict__[attr].extend(p_PermissionIdentityBodies)
+        self[attr].extend(p_PermissionIdentityBodies)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddMembers(self, p_PermissionIdentityBodies: []):
@@ -339,20 +348,22 @@ class BatchPermissions:
         self.__add('deleted', p_PermissionIdentityBodies)
 
 
-class SecurityProviderReference:
+class SecurityProviderReference(dict):
     id = ''
     type = 'SOURCE'
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Default constructor used by the deserialization.
 
     def __init__(self, p_SourceId: str, p_type: str):
+        dict.__init__(self,id=p_SourceId,type=p_type)
+
         """
         Constructor SecurityProviderReference.
         :arg p_SourceId: Source id.
         :arg p_type: "SOURCE"
         """
-        self.id = p_SourceId
-        self.type = p_type
+        self['id'] = p_SourceId
+        self['type'] = p_type
 
 
 class SecurityProvider:

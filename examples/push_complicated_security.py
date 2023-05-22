@@ -12,9 +12,9 @@ from coveopush import CoveoConstants
 
 
 def main():
-    sourceId = os.environ.get('PUSH_SOURCE_ID') or '--Enter your source id--'
-    orgId = os.environ.get('PUSH_ORG_ID') or '--Enter your org id--'
-    apiKey = os.environ.get('PUSH_API_KEY') or '--Enter your API key--'
+    sourceId = ''
+    orgId = ''
+    apiKey = ''
 
     # Shortcut for constants
     GROUP = CoveoConstants.Constants.PermissionIdentityType.Group

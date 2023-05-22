@@ -340,6 +340,10 @@ After the next Security Permission update cycle, the securities will be updated 
 
 May 2023:
 
+- Fix CoveoPermissions to write into dictionary
+
+May 2023:
+
 - Fix permission json
 
 Nov 2022:
