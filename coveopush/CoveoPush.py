@@ -221,7 +221,7 @@ class Push:
         delay_in_seconds = initial_retry_delay_in_seconds
         nb_retries = 0
         while True:
-            response = requests.post(call_endpoint, **kwargs)
+            response = requests.post(call_endpoint,timeout=5, **kwargs)
             nb_retries += 1
             if response.status_code == 429 and nb_retries <= max_nb_retries:
                 print("429, sleeping")
@@ -237,7 +237,7 @@ class Push:
         delay_in_seconds = initial_retry_delay_in_seconds
         nb_retries = 0
         while True:
-            response = requests.put(call_endpoint, **kwargs)
+            response = requests.put(call_endpoint, timeout=5,**kwargs)
             nb_retries += 1
             if response.status_code == 429 and nb_retries <= max_nb_retries:
                 print("429, sleeping")
@@ -253,7 +253,7 @@ class Push:
         delay_in_seconds = initial_retry_delay_in_seconds
         nb_retries = 0
         while True:
-            response = requests.delete(call_endpoint, **kwargs)
+            response = requests.delete(call_endpoint, timeout=5,**kwargs)
             nb_retries += 1
             if response.status_code == 429 and nb_retries <= max_nb_retries:
                 print("429, sleeping")
