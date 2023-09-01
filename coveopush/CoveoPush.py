@@ -131,6 +131,7 @@ class Push:
         push.End( updateSourceStatus, deleteOlder)
 
     """
+    version = '1092023'
     SourceId = ''
     OrganizationId = ''
     ApiKey = ''
@@ -178,6 +179,7 @@ class Push:
         self.logger.debug('\n\n')
         self.logger.debug('------------------------------')
         self.logger.info('Pushing to source ' + self.SourceId)
+        self.logger.info('Version ' + self.version)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def SetSizeMaxRequest(self, p_Max: int):
@@ -214,6 +216,48 @@ class Push:
             req_log.setLevel(logging.DEBUG)
             req_log.propagate = True
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def call_post_api_with_retries(self, call_endpoint, max_nb_retries=7, initial_retry_delay_in_seconds=5, backoff_factor=3, **kwargs):
+        delay_in_seconds = initial_retry_delay_in_seconds
+        nb_retries = 0
+        while True:
+            response = requests.post(call_endpoint, **kwargs)
+            nb_retries += 1
+            if response.status_code == 429 and nb_retries <= max_nb_retries:
+                time.sleep(delay_in_seconds)
+                delay_in_seconds = delay_in_seconds * backoff_factor
+            else:
+                #Error(self, "Calling API (429): Too many requests, even after retrying")
+                response.raise_for_status()
+                return response
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def call_put_api_with_retries(self, call_endpoint, max_nb_retries=7, initial_retry_delay_in_seconds=5, backoff_factor=3, **kwargs):
+        delay_in_seconds = initial_retry_delay_in_seconds
+        nb_retries = 0
+        while True:
+            response = requests.put(call_endpoint, **kwargs)
+            nb_retries += 1
+            if response.status_code == 429 and nb_retries <= max_nb_retries:
+                time.sleep(delay_in_seconds)
+                delay_in_seconds = delay_in_seconds * backoff_factor
+            else:
+                #Error(self, "Calling API (429): Too many requests, even after retrying")
+                response.raise_for_status()
+                return response                
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def call_delete_api_with_retries(self, call_endpoint, max_nb_retries=7, initial_retry_delay_in_seconds=5, backoff_factor=3, **kwargs):
+        delay_in_seconds = initial_retry_delay_in_seconds
+        nb_retries = 0
+        while True:
+            response = requests.delete(call_endpoint, **kwargs)
+            nb_retries += 1
+            if response.status_code == 429 and nb_retries <= max_nb_retries:
+                time.sleep(delay_in_seconds)
+                delay_in_seconds = delay_in_seconds * backoff_factor
+            else:
+                #Error(self, "Calling API (429): Too many requests, even after retrying")
+                response.raise_for_status()
+                return response                
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def GetRequestHeaders(self):
         """
@@ -496,7 +540,8 @@ class Push:
         """
 
         self.logger.debug(self.GetOpenStreamUrl())
-        r = requests.post(
+        #r = #requests.post(
+        r=   self.call_post_api_with_retries(
             self.GetOpenStreamUrl(),
             headers=self.GetRequestHeaders()
         )
@@ -515,7 +560,8 @@ class Push:
         """
 
         self.logger.debug(self.GetChunkStreamUrl(p_streamId))
-        r = requests.post(
+        #r = requests.post(
+        r=   self.call_post_api_with_retries(            
             self.GetChunkStreamUrl(p_streamId),
             headers=self.GetRequestHeaders()
         )
@@ -546,7 +592,8 @@ class Push:
         if (isBase64(p_CompressedFile)):
             p_CompressedFile = base64.b64decode(p_CompressedFile)
 
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             p_UploadUri,
             data=p_CompressedFile,
             headers=self.GetRequestHeadersForS3()
@@ -582,7 +629,8 @@ class Push:
         #print (encoded)
         #end = time.time()
         #print("Encoding batch: "+str(end-start))
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             p_UploadUri,
             data=encoded,
             headers=self.GetRequestHeadersForS3()
@@ -609,7 +657,8 @@ class Push:
         pickled_permissions = jsonpickle.encode(self.BatchPermissions, unpicklable=False)
         self.logger.debug("JSON: " + pickled_permissions)
 
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             p_UploadUri,
             data=pickled_permissions,
             headers=self.GetRequestHeadersForS3()
@@ -684,7 +733,8 @@ class Push:
         # self.logger.debug(body)
 
         # make POST request to change status
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             self.GetUpdateDocumentUrl(),
             data=body,
             headers=self.GetRequestHeaders(),
@@ -718,7 +768,8 @@ class Push:
         # self.logger.debug(body)
 
         # make POST request to change status
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             self.GetUpdateDocumentUrl(),
             data=body,
             headers=self.GetRequestHeaders(),
@@ -749,7 +800,8 @@ class Push:
         self.logger.debug(params)
         if self.Mode == Constants.Mode.Push:
             # delete it
-            r = requests.delete(
+            #r = requests.delete(
+            r=self.call_delete_api_with_retries(
                 self.GetDeleteDocumentUrl(),
                 headers=self.GetRequestHeaders(),
                 params=params
@@ -783,7 +835,8 @@ class Push:
             else:
                 params[Constants.Parameters.QUEUE_DELAY] = queueDelay
 
-        r = requests.delete(
+        #r = requests.delete(
+        r=self.call_delete_api_with_retries(
             self.GetDeleteOlderThanUrl(),
             headers=self.GetRequestHeaders(),
             params=params
@@ -889,7 +942,8 @@ class Push:
             Constants.Parameters.FILE_ID: p_FileId
         }
         # make POST request to change status
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             self.GetUpdateDocumentsUrl(),
             headers=self.GetRequestHeaders(),
             params=params
@@ -910,7 +964,8 @@ class Push:
             Constants.Parameters.FILE_ID: p_FileId
         }
         # make POST request to change status
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             self.GetUpdateStreamUrl(),
             headers=self.GetRequestHeaders(),
             params=params
@@ -1014,6 +1069,8 @@ class Push:
 
         # In the case of a stream, close the stream
 
+    
+
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddDocuments(self, p_CoveoDocumentsToAdd: [], p_CoveoDocumentsToDelete: [], p_CoveoDocumentsToUpdate: [],p_UpdateStatus: bool = True, p_DeleteOlder: bool = False):
@@ -1069,7 +1126,8 @@ class Push:
         # Close the stream
         if self.Mode == Constants.Mode.Stream:
             self.logger.debug(self.GetCloseStreamUrl(self.currentStream.StreamId))
-            r = requests.post(
+            #r = requests.post(
+            r=   self.call_post_api_with_retries(                
                 self.GetCloseStreamUrl(self.currentStream.StreamId),
                 headers=self.GetRequestHeaders()
             )
@@ -1211,7 +1269,8 @@ class Push:
         if self.Mode == Constants.Mode.Stream:
           if not self.save:
             self.logger.debug(self.GetCloseStreamUrl(self.currentStream.StreamId))
-            r = requests.post(
+            #r = requests.post(
+            r=   self.call_post_api_with_retries(
                 self.GetCloseStreamUrl(self.currentStream.StreamId),
                 headers=self.GetRequestHeaders()
             )
@@ -1252,7 +1311,8 @@ class Push:
         # make POST request to change status
         pickled_provider = jsonpickle.encode(secProvider, unpicklable=False)
         self.logger.debug("JSON: "+pickled_provider)
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             self.GetSecurityProviderUrl(p_Endpoint, p_SecurityProviderId),
             data=pickled_provider,
             headers=self.GetRequestHeaders()
@@ -1299,7 +1359,8 @@ class Push:
         self.logger.debug(f'JSON: {pickled_identity}')
 
         # Update permission
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             resourcePath,
             data=pickled_identity,
             headers=self.GetRequestHeaders(),
@@ -1404,7 +1465,8 @@ class Push:
         )
 
         # Update permission
-        r = requests.put(
+        #r = requests.put(
+        r=self.call_put_api_with_retries(
             resourcePath,
             headers=self.GetRequestHeaders(),
             params=params
@@ -1436,7 +1498,8 @@ class Push:
 
         self.logger.debug("JSON: " + pickled_identity)
 
-        r = requests.delete(
+        #r = requests.delete(
+        r=self.call_delete_api_with_retries(
             resourcePath,
             data=pickled_identity,
             headers=self.GetRequestHeaders()
@@ -1469,7 +1532,8 @@ class Push:
         )
 
         # Update permission
-        r = requests.delete(
+        #r = requests.delete(
+        r=self.call_delete_api_with_retries(
             resourcePath,
             headers=self.GetRequestHeaders(),
             params=params

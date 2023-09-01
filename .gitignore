@@ -3,3 +3,4 @@ __pycache__
 config.php
 CoveoPush.log
 /testfiles/*
+settings.json

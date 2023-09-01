@@ -338,6 +338,10 @@ After the next Security Permission update cycle, the securities will be updated 
 
 ### Changes
 
+Aug 2023:
+
+- Implement throttling
+
 May 2023:
 
 - Fix CoveoPermissions to write into dictionary
