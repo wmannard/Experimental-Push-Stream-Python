@@ -18,7 +18,7 @@ Make sure you have [git](https://git-scm.com/downloads) installed.
 Then, in your command prompt, enter the following command:
 
 ```
-pip install git+https://github.com/coveo-labs/SDK-Push-Python
+pip install --upgrade git+https://github.com/coveo-labs/SDK-Push-Python
 ```
 
 This SDK depends on the [Python Requests](http://docs.python-requests.org/en/master/user/install/#install) and [JSONPickle](https://jsonpickle.github.io/#download-install) libraries.
