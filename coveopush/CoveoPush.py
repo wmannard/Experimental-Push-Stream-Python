@@ -224,6 +224,8 @@ class Push:
             response = requests.post(call_endpoint, **kwargs)
             nb_retries += 1
             if response.status_code == 429 and nb_retries <= max_nb_retries:
+                print("429, sleeping")
+                self.logger.debug('429, sleeping')
                 time.sleep(delay_in_seconds)
                 delay_in_seconds = delay_in_seconds * backoff_factor
             else:
@@ -238,6 +240,8 @@ class Push:
             response = requests.put(call_endpoint, **kwargs)
             nb_retries += 1
             if response.status_code == 429 and nb_retries <= max_nb_retries:
+                print("429, sleeping")
+                self.logger.debug('429, sleeping')
                 time.sleep(delay_in_seconds)
                 delay_in_seconds = delay_in_seconds * backoff_factor
             else:
@@ -252,6 +256,8 @@ class Push:
             response = requests.delete(call_endpoint, **kwargs)
             nb_retries += 1
             if response.status_code == 429 and nb_retries <= max_nb_retries:
+                print("429, sleeping")
+                self.logger.debug('429, sleeping')
                 time.sleep(delay_in_seconds)
                 delay_in_seconds = delay_in_seconds * backoff_factor
             else:
