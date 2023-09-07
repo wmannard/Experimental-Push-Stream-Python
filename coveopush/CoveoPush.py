@@ -220,13 +220,20 @@ class Push:
     def call_post_api_with_retries(self, call_endpoint, max_nb_retries=7, initial_retry_delay_in_seconds=5, backoff_factor=3, **kwargs):
         delay_in_seconds = initial_retry_delay_in_seconds
         nb_retries = 0
+        timeout=False
+
         while True:
-            response = requests.post(call_endpoint,timeout=5, **kwargs)
+            try:
+                response = requests.post(call_endpoint,timeout=15, **kwargs)
+            except requests.exceptions.Timeout:
+                print("read timeout")
+                timeout=True
             nb_retries += 1
-            if response.status_code == 429 and nb_retries <= max_nb_retries:
+            if (response.status_code == 429 or timeout) and nb_retries <= max_nb_retries:
                 print("429, sleeping")
                 self.logger.debug('429, sleeping')
                 time.sleep(delay_in_seconds)
+                timeout=False
                 delay_in_seconds = delay_in_seconds * backoff_factor
             else:
                 #Error(self, "Calling API (429): Too many requests, even after retrying")
@@ -236,13 +243,19 @@ class Push:
     def call_put_api_with_retries(self, call_endpoint, max_nb_retries=7, initial_retry_delay_in_seconds=5, backoff_factor=3, **kwargs):
         delay_in_seconds = initial_retry_delay_in_seconds
         nb_retries = 0
+        timeout=False
         while True:
-            response = requests.put(call_endpoint, timeout=5,**kwargs)
+            try:
+                response = requests.put(call_endpoint, timeout=15,**kwargs)
+            except requests.exceptions.Timeout:
+                print("read timeout")
+                timeout=True
             nb_retries += 1
-            if response.status_code == 429 and nb_retries <= max_nb_retries:
+            if (response.status_code == 429 or timeout) and nb_retries <= max_nb_retries:
                 print("429, sleeping")
                 self.logger.debug('429, sleeping')
                 time.sleep(delay_in_seconds)
+                timeout=False
                 delay_in_seconds = delay_in_seconds * backoff_factor
             else:
                 #Error(self, "Calling API (429): Too many requests, even after retrying")
@@ -252,13 +265,19 @@ class Push:
     def call_delete_api_with_retries(self, call_endpoint, max_nb_retries=7, initial_retry_delay_in_seconds=5, backoff_factor=3, **kwargs):
         delay_in_seconds = initial_retry_delay_in_seconds
         nb_retries = 0
+        timeout=False
         while True:
-            response = requests.delete(call_endpoint, timeout=5,**kwargs)
+            try:
+                response = requests.delete(call_endpoint, timeout=15,**kwargs)
+            except requests.exceptions.Timeout:
+                print("read timeout")
+                timeout=True
             nb_retries += 1
-            if response.status_code == 429 and nb_retries <= max_nb_retries:
+            if (response.status_code == 429 or timeout) and nb_retries <= max_nb_retries:
                 print("429, sleeping")
                 self.logger.debug('429, sleeping')
                 time.sleep(delay_in_seconds)
+                timeout=False
                 delay_in_seconds = delay_in_seconds * backoff_factor
             else:
                 #Error(self, "Calling API (429): Too many requests, even after retrying")

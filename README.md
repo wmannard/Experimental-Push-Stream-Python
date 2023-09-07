@@ -338,6 +338,10 @@ After the next Security Permission update cycle, the securities will be updated 
 
 ### Changes
 
+Sept 2023:
+
+- Add timeout
+
 Aug 2023:
 
 - Implement throttling
