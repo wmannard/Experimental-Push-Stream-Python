@@ -12,9 +12,13 @@ from coveopush import CoveoConstants
 
 
 def main():
-    sourceId = ''
-    orgId = ''
-    apiKey = ''
+
+    with open("settings.json", "r") as f:
+        config = json.load(f)
+
+    sourceId = config["sourceId"]
+    orgId = config["orgId"]
+    apiKey = config["apiKey"]
 
     # Shortcut for constants
     GROUP = CoveoConstants.Constants.PermissionIdentityType.Group
@@ -76,11 +80,11 @@ def main():
     permLevel1 = CoveoPermissions.DocumentPermissionLevel('First')
     permLevel1Set1 = CoveoPermissions.DocumentPermissionSet('1Set1')
     permLevel1Set2 = CoveoPermissions.DocumentPermissionSet('1Set2')
-    permLevel1Set1.AllowAnonymous = False
-    permLevel1Set2.AllowAnonymous = False
+    permLevel1Set1.SetAnonymousPermissions( True)
+    permLevel1Set2.SetAnonymousPermissions( True)
     permLevel2 = CoveoPermissions.DocumentPermissionLevel('Second')
     permLevel2Set = CoveoPermissions.DocumentPermissionSet('2Set1')
-    permLevel2Set.AllowAnonymous = False
+    permLevel2Set.SetAnonymousPermissions( True)
 
     # Set the allowed permissions for the first set of the first level
     for user in users:
@@ -108,6 +112,8 @@ def main():
     # Set the permissions on the document
     mydoc.Permissions.append(permLevel1)
     mydoc.Permissions.append(permLevel2)
+
+    #mydoc.SetAllowedAndDeniedPermissions( [], [], True)
 
     text = json.dumps(mydoc.ToJson(), ensure_ascii=True,default = str)
 

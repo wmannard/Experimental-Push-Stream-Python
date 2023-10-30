@@ -464,7 +464,7 @@ class Document:
         simplePermissionSet = CoveoPermissions.DocumentPermissionSet('Set1')
         simplePermissionSet.AddAllowedPermissions(p_AllowedPermissions)
         simplePermissionSet.AddDeniedPermissions(p_DeniedPermissions)
-        simplePermissionSet.AllowAnonymous = p_AllowAnonymous
+        simplePermissionSet.SetAnonymousPermissions(p_AllowAnonymous)
 
         simplePermissionLevel.AddPermissionSet(simplePermissionSet)
 

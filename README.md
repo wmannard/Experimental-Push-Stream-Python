@@ -338,6 +338,10 @@ After the next Security Permission update cycle, the securities will be updated 
 
 ### Changes
 
+Oct 2023:
+
+- Fixed AllowAnonymous in Permissionset. New method: `SetAnonymousPermissions` on `DocumentPermissionSet`
+
 Sept 2023:
 
 - Add timeout

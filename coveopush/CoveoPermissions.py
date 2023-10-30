@@ -131,6 +131,15 @@ class DocumentPermissionSet(dict):
         self['DeniedPermissions'] = []
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def SetAnonymousPermissions(self, p_AllowAnonymous: bool):
+        """
+        SetAnonymousPermissions.
+        set the Allow Anonymous flag to the argument
+        :arg p_AllowAnonymous: anonymous is permitted yes or no.
+        """
+        self['AllowAnonymous'] = p_AllowAnonymous
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def AddAllowedPermissions(self, p_PermissionIdentities: []):
         """
         AddAllowedPermissions.
