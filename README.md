@@ -1,15 +1,17 @@
-# Coveo Push/Stream API SDK for Python
+# Coveo Experimental Push/Stream API for Python
 
-The Coveo Push API SDK for Python is meant to help you use the [Coveo Push API](https://docs.coveo.com/en/68/cloud-v2-developers/push-api) when coding in Python.
+The Coveo Experimental Push API for Python is meant to help you use the [Coveo Push API](https://docs.coveo.com/en/68/cloud-v2-developers/push-api) when coding in Python.
 
-This SDK includes the following features:
+**Remark: This is an experimental repository and no support is given, use at own risk.**
+
+This package includes the following features:
 
 - Document validation before they are pushed to the plaform
 - Source update status before and after a document update
 - Automatic push of large files to the platform through an Amazon S3 container
 - Upload Stream data when using a Catalog source
 
-For code examples on how to use the SDK, see the `examples` section.
+For code examples on how to use the package, see the `examples` section.
 
 ## Installation
 
@@ -18,12 +20,12 @@ Make sure you have [git](https://git-scm.com/downloads) installed.
 Then, in your command prompt, enter the following command:
 
 ```
-pip install --upgrade git+https://github.com/coveo-labs/SDK-Push-Python
+pip install --upgrade git+https://github.com/coveo-labs/Experimental-Push-Python
 ```
 
 This SDK depends on the [Python Requests](http://docs.python-requests.org/en/master/user/install/#install) and [JSONPickle](https://jsonpickle.github.io/#download-install) libraries.
 
-## Including the SDK in Your Code
+## Including the package in Your Code
 
 Simply add the following lines into your project:
 
