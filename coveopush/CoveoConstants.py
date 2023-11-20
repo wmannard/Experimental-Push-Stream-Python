@@ -106,7 +106,7 @@ class Constants:
     class PlatformEndpoint:
         PROD_PLATFORM_API_URL = "https://platform.cloud.coveo.com"
         HIPAA_PLATFORM_API_URL = "https://platformhipaa.cloud.com"
-        QA_PLATFORM_API_URL = "https://platformqa.cloud.coveo.com"
+        STG_PLATFORM_API_URL = "https://platformstg.cloud.coveo.com"
         DEV_PLATFORM_API_URL = "https://platformdev.cloud.coveo.com"
 
     # ---------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ class Constants:
     class PushApiEndpoint:
         PROD_PUSH_API_URL = "https://api.cloud.coveo.com/push/v1"
         HIPAA_PUSH_API_URL = "https://apihipaa.cloud.coveo.com/push/v1"
-        QA_PUSH_API_URL = "https://apiqa.cloud.coveo.com/push/v1"
+        STG_PUSH_API_URL = "https://apistg.cloud.coveo.com/push/v1"
         DEV_PUSH_API_URL = "https://apidev.cloud.coveo.com/push/v1"
 
     # ---------------------------------------------------------------------------------
